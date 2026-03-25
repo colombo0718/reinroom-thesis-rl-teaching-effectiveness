@@ -1,0 +1,25 @@
+# 論文輸出（腳本生成，不追蹤）
+論文_組裝.docx
+
+# 暫存檔
+_tmp_*.txt
+.~lock.*
+
+# 元智格式規範原始 .doc 檔（體積大，已有 .docx 版本）
+元智格式規範/*.doc
+*.doc
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 編輯器
+.vscode/
+*.swp
