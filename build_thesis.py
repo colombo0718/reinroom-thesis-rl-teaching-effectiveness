@@ -40,9 +40,11 @@ CHAPTERS = [
         "2.4 圖形化介面（UI-driven）與低門檻 RL 教學.md",
         "2.5 本研究切入點與創新定位.md",
     ]),
-    ("第三章　研究平台與教材設計", [
+    ("第三章　Rein Room 平台設計", [
         "3.1 RL Lab 平台架構.md",
-        "3.2 教材內容設計與章節安排.md",
+        "3.2 演算法設計.md",
+        "3.3 視覺化模組.md",
+        "3.4 遊戲環境.md",
     ]),
     ("第四章　研究設計", [
         "4.1 研究假設與實驗目標.md",
@@ -219,13 +221,13 @@ def add_table(doc, raw_rows):
 # ── 圖片查找 ─────────────────────────────────────────────────────────────
 
 def find_image(caption):
-    """從圖說文字找對應圖片，例：圖 3-1 → images/fig3-1.png。"""
-    m = re.search(r'圖\s*(\d+)\s*[-−–]\s*(\d+)', caption)
+    """從圖說文字找對應圖片，例：圖 3-1 → images/fig3-1.png，圖 3-11a → images/fig3-11a.png。"""
+    m = re.search(r'圖\s*(\d+)\s*[-−–]\s*(\d+)([a-z]?)', caption)
     if not m:
         return None
-    ch, num = m.group(1), m.group(2)
+    ch, num, letter = m.group(1), m.group(2), m.group(3)
     for ext in ('png', 'jpg', 'jpeg'):
-        p = IMG_DIR / f"fig{ch}-{num}.{ext}"
+        p = IMG_DIR / f"fig{ch}-{num}{letter}.{ext}"
         if p.exists():
             return p
     return None

@@ -23,7 +23,7 @@ GitHub repo 名稱（待建立）：`reinroom-thesis-rl-teaching-effectiveness`
 ## 平台資訊
 
 - **平台名稱：** ReinRoom（正式名稱），縮寫 RR，論文內稱 RL Lab
-- **網址：** reinforcelab.vercel.app
+- **網址：** https://reinroom.leaflune.org/
 - **性質：** 純前端、零安裝、瀏覽器直接運行的強化學習互動教學平台
 - **核心功能：** Q-Learning / DQN、ε-greedy / Softmax、Q-table 視覺化、雙 Agent 比較
 - **對照組平台：** Gymnasium（gymnasium.farama.org）+ Google Colab

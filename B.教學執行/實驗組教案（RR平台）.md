@@ -2,7 +2,7 @@
 
 **對象：** 大學生（國際生）｜**授課語言：** 英文
 **日期：** 第1堂 4/21（二）、第2堂 4/28（二）｜**時間：** 14:10–17:00
-**平台：** Rein Room — reinforcelab.vercel.app
+**平台：** Rein Room — https://reinroom.leaflune.org/
 
 ---
 
@@ -44,7 +44,7 @@
 ### 14:50–15:20｜RR 介面導覽 + MAB 任務（30 min）
 
 **教師指示語（介面導覽）：**
-> "Now open your browser and go to this URL: reinforcelab.vercel.app. This is the platform we'll be using today. Let me walk you through the interface."
+> "Now open your browser and go to this URL: reinroom.leaflune.org — that's R-E-I-N-R-O-O-M dot leaflune dot org. This is the platform we'll be using today. Let me walk you through the interface."
 
 **介面說明重點：**
 - 左側遊戲區：Agent 在這裡行動
