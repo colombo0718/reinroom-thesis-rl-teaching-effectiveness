@@ -297,11 +297,11 @@ class HeliEnv(gym.Env):
         nw = next((w for w in self.walls if w["x"] + self.WALL_WIDTH >= self.HELI_X), self.walls[0])
         gap_center = (nw["gap_top"] + nw["gap_bottom"]) / 2
         wall_dist   = nw["x"] + self.WALL_WIDTH - self.HELI_X
-        # normalize each to [-1, 1]
+        # normalize each to [-1, 1] and clip (wall may start outside canvas)
         hy  = self.heli_y / self.CANVAS_H * 2 - 1
         wd  = wall_dist  / self.CANVAS_W * 2 - 1
         gc  = gap_center / self.CANVAS_H * 2 - 1
-        return np.array([hy, wd, gc], dtype=np.float32)
+        return np.clip(np.array([hy, wd, gc], dtype=np.float32), -1.0, 1.0)
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
