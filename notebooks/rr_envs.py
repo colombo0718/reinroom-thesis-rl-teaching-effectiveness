@@ -1,4 +1,4 @@
-"""
+﻿"""
 rr_envs.py — RR Platform Custom Gymnasium Environments
 =======================================================
 Five environments that exactly replicate the reward functions of
@@ -22,7 +22,233 @@ from gymnasium import spaces
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib import font_manager
 from IPython.display import clear_output
+# ─────────────────────────────────────────────────────────────
+# Lightweight RGB render helpers for Colab / pytest
+# ─────────────────────────────────────────────────────────────
+
+_REWARD_EMOJI = {0: "❌", 1: "🍬", 3: "🪙", 10: "💎"}
+
+
+def _figure_to_rgb_array(fig):
+    """Convert a Matplotlib figure into an RGB uint8 image array."""
+    fig.canvas.draw()
+    width, height = fig.canvas.get_width_height()
+
+    if hasattr(fig.canvas, "buffer_rgba"):
+        rgba = np.asarray(fig.canvas.buffer_rgba(), dtype=np.uint8)
+        rgb = rgba[:, :, :3].copy()
+    else:
+        buffer = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+        rgb = buffer.reshape((height, width, 3))
+
+    plt.close(fig)
+    return rgb
+
+
+def _blank_axes(figsize=(6, 4), xlim=None, ylim=None):
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.set_aspect("equal", adjustable="box")
+    ax.axis("off")
+    if xlim is not None:
+        ax.set_xlim(*xlim)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+    return fig, ax
+
+def _available_font_names():
+    return {font.name for font in font_manager.fontManager.ttflist}
+
+
+def _pick_emoji_font():
+    available = _available_font_names()
+    for name in ("Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI Symbol"):
+        if name in available:
+            return name
+    return None
+
+
+def _pick_ui_font():
+    available = _available_font_names()
+    for name in ("Microsoft JhengHei", "Microsoft YaHei", "Noto Sans CJK TC", "Arial Unicode MS", "DejaVu Sans"):
+        if name in available:
+            return name
+    return None
+
+
+_EMOJI_FONT = _pick_emoji_font()
+_UI_FONT = _pick_ui_font()
+
+
+def _emoji_text(ax, *args, **kwargs):
+    if _EMOJI_FONT is not None:
+        kwargs.setdefault("fontfamily", _EMOJI_FONT)
+    return ax.text(*args, **kwargs)
+
+def _emoji_title(ax, *args, **kwargs):
+    if _EMOJI_FONT is not None:
+        kwargs.setdefault("fontfamily", _EMOJI_FONT)
+    return ax.set_title(*args, **kwargs)
+
+def _ui_text(ax, *args, **kwargs):
+    if _UI_FONT is not None:
+        kwargs.setdefault("fontfamily", _UI_FONT)
+    return ax.text(*args, **kwargs)
+
+def _draw_slot_icon(ax, x, y, size=0.28):
+    """Draw a small colorful slot-machine icon instead of relying on monochrome emoji fonts."""
+    w = size
+    h = size * 1.12
+    ax.add_patch(patches.FancyBboxPatch(
+        (x - w / 2, y - h / 2), w, h,
+        boxstyle="round,pad=0.015,rounding_size=0.02",
+        linewidth=1.2,
+        edgecolor="#3d3d3d",
+        facecolor="#4f8cff",
+        zorder=3,
+    ))
+    ax.add_patch(patches.Rectangle((x - w * 0.30, y - h * 0.20), w * 0.60, h * 0.24,
+                                   facecolor="#fff7d1", edgecolor="#333333", linewidth=0.8, zorder=4))
+    for dx, color in ((-0.16, "#e84855"), (0.0, "#ffd447"), (0.16, "#43aa8b")):
+        ax.add_patch(patches.Circle((x + dx * w, y - h * 0.08), w * 0.055, color=color, zorder=5))
+    ax.plot([x + w * 0.42, x + w * 0.58], [y + h * 0.05, y + h * 0.20], color="#333333", linewidth=1.5, zorder=4)
+    ax.add_patch(patches.Circle((x + w * 0.61, y + h * 0.23), w * 0.055, color="#e84855", zorder=5))
+    ax.add_patch(patches.Rectangle((x - w * 0.24, y + h * 0.24), w * 0.48, h * 0.08,
+                                   facecolor="#2f2f2f", edgecolor="none", zorder=4))
+
+
+def _draw_reward_icon(ax, value, x, y, size=0.28):
+    """Draw colorful RR reward symbols for ❌/🍬/🪙/💎 without font-color limitations."""
+    value = int(value) if value != "?" else "?"
+    if value == "?":
+        ax.add_patch(patches.Circle((x, y), size * 0.42, facecolor="#eeeeee", edgecolor="#999999", linewidth=1.0, zorder=3))
+        ax.text(x, y - size * 0.01, "?", ha="center", va="center", fontsize=12, color="#777777", zorder=4)
+        return
+
+    if value == 0:
+        ax.plot([x - size * 0.32, x + size * 0.32], [y - size * 0.32, y + size * 0.32],
+                color="#e03131", linewidth=3.2, solid_capstyle="round", zorder=4)
+        ax.plot([x - size * 0.32, x + size * 0.32], [y + size * 0.32, y - size * 0.32],
+                color="#e03131", linewidth=3.2, solid_capstyle="round", zorder=4)
+        return
+
+    if value == 1:
+        ax.add_patch(patches.Polygon(
+            [(x - size * 0.52, y), (x - size * 0.33, y + size * 0.22), (x - size * 0.33, y - size * 0.22)],
+            closed=True, facecolor="#ff9ecb", edgecolor="#9b3f68", linewidth=0.8, zorder=3))
+        ax.add_patch(patches.Polygon(
+            [(x + size * 0.52, y), (x + size * 0.33, y + size * 0.22), (x + size * 0.33, y - size * 0.22)],
+            closed=True, facecolor="#ff9ecb", edgecolor="#9b3f68", linewidth=0.8, zorder=3))
+        ax.add_patch(patches.FancyBboxPatch(
+            (x - size * 0.32, y - size * 0.18), size * 0.64, size * 0.36,
+            boxstyle="round,pad=0.01,rounding_size=0.04",
+            facecolor="#ff6fb1", edgecolor="#9b3f68", linewidth=0.9, zorder=4))
+        ax.plot([x - size * 0.18, x + size * 0.18], [y - size * 0.14, y + size * 0.14],
+                color="#ffffff", linewidth=1.2, zorder=5)
+        return
+
+    if value == 3:
+        ax.add_patch(patches.Circle((x, y), size * 0.42, facecolor="#f2c94c", edgecolor="#a66a00", linewidth=1.2, zorder=3))
+        ax.add_patch(patches.Circle((x, y), size * 0.28, facecolor="#ffd966", edgecolor="#c88a00", linewidth=0.8, zorder=4))
+        ax.text(x, y, "3", ha="center", va="center", fontsize=8.5, color="#7a4b00", fontweight="bold", zorder=5)
+        return
+
+    if value == 10:
+        ax.add_patch(patches.Polygon(
+            [(x, y + size * 0.48), (x + size * 0.42, y + size * 0.05), (x + size * 0.24, y - size * 0.42),
+             (x - size * 0.24, y - size * 0.42), (x - size * 0.42, y + size * 0.05)],
+            closed=True, facecolor="#66d9ef", edgecolor="#168aad", linewidth=1.1, zorder=3))
+        ax.plot([x - size * 0.24, x, x + size * 0.24], [y - size * 0.42, y + size * 0.48, y - size * 0.42],
+                color="#dff9ff", linewidth=0.9, zorder=4)
+        return
+
+    ax.text(x, y, str(value), ha="center", va="center", fontsize=10, zorder=4)
+
+
+def _draw_fire_icon(ax, x, y, size=0.30):
+    ax.add_patch(patches.Polygon(
+        [(x, y + size * 0.50), (x + size * 0.26, y + size * 0.05), (x + size * 0.10, y - size * 0.42),
+         (x - size * 0.04, y - size * 0.12), (x - size * 0.24, y - size * 0.40), (x - size * 0.20, y + size * 0.10)],
+        closed=True, facecolor="#ff7a00", edgecolor="#b74700", linewidth=0.9, zorder=4))
+    ax.add_patch(patches.Polygon(
+        [(x, y + size * 0.28), (x + size * 0.12, y + size * 0.02), (x, y - size * 0.22), (x - size * 0.12, y + size * 0.02)],
+        closed=True, facecolor="#ffd447", edgecolor="none", zorder=5))
+
+
+def _draw_person_icon(ax, x, y, size=0.36):
+    ax.add_patch(patches.Circle((x, y - size * 0.20), size * 0.18, facecolor="#ffd6a5", edgecolor="#8a5a2b", linewidth=0.8, zorder=5))
+    ax.add_patch(patches.Arc((x, y - size * 0.24), size * 0.32, size * 0.26, theta1=0, theta2=180,
+                             color="#3d2b1f", linewidth=2.0, zorder=6))
+    ax.add_patch(patches.FancyBboxPatch(
+        (x - size * 0.22, y - size * 0.02), size * 0.44, size * 0.36,
+        boxstyle="round,pad=0.01,rounding_size=0.03",
+        facecolor="#4dabf7", edgecolor="#1864ab", linewidth=0.8, zorder=4))
+    ax.plot([x - size * 0.18, x - size * 0.32], [y + size * 0.10, y + size * 0.30], color="#1864ab", linewidth=1.8, zorder=4)
+    ax.plot([x + size * 0.18, x + size * 0.32], [y + size * 0.10, y + size * 0.30], color="#1864ab", linewidth=1.8, zorder=4)
+
+
+def _draw_bomb_icon(ax, x, y, size=0.34):
+    ax.add_patch(patches.Circle((x, y), size * 0.34, facecolor="#2b2d42", edgecolor="#111111", linewidth=1.0, zorder=4))
+    ax.plot([x + size * 0.20, x + size * 0.36], [y - size * 0.24, y - size * 0.42], color="#5c4033", linewidth=2.0, zorder=5)
+    ax.add_patch(patches.Circle((x + size * 0.41, y - size * 0.47), size * 0.07, facecolor="#ffd447", edgecolor="#f08c00", linewidth=0.8, zorder=6))
+    ax.add_patch(patches.Circle((x - size * 0.12, y - size * 0.10), size * 0.08, facecolor="#6c757d", edgecolor="none", zorder=5))
+
+
+def _draw_trophy_icon(ax, x, y, size=0.36):
+    ax.add_patch(patches.FancyBboxPatch(
+        (x - size * 0.20, y - size * 0.28), size * 0.40, size * 0.34,
+        boxstyle="round,pad=0.01,rounding_size=0.025",
+        facecolor="#ffd43b", edgecolor="#b08900", linewidth=1.0, zorder=5))
+    ax.add_patch(patches.Arc((x - size * 0.25, y - size * 0.14), size * 0.26, size * 0.28, theta1=90, theta2=270,
+                             color="#b08900", linewidth=1.5, zorder=4))
+    ax.add_patch(patches.Arc((x + size * 0.25, y - size * 0.14), size * 0.26, size * 0.28, theta1=-90, theta2=90,
+                             color="#b08900", linewidth=1.5, zorder=4))
+    ax.add_patch(patches.Rectangle((x - size * 0.06, y + size * 0.06), size * 0.12, size * 0.24,
+                                   facecolor="#d4a017", edgecolor="#8a6d00", linewidth=0.8, zorder=4))
+    ax.add_patch(patches.Rectangle((x - size * 0.28, y + size * 0.28), size * 0.56, size * 0.10,
+                                   facecolor="#8d6e00", edgecolor="#5f4b00", linewidth=0.8, zorder=4))
+
+
+def _draw_pizza_icon(ax, x, y, size=0.38):
+    ax.add_patch(patches.Polygon(
+        [(x - size * 0.34, y - size * 0.26), (x + size * 0.34, y - size * 0.26), (x, y + size * 0.40)],
+        closed=True, facecolor="#ffd166", edgecolor="#b5651d", linewidth=1.0, zorder=4))
+    ax.plot([x - size * 0.28, x + size * 0.28], [y - size * 0.20, y - size * 0.20], color="#b5651d", linewidth=2.0, zorder=5)
+    for dx, dy in ((-0.12, -0.06), (0.10, 0.02), (0.00, 0.20)):
+        ax.add_patch(patches.Circle((x + size * dx, y + size * dy), size * 0.045, facecolor="#e03131", edgecolor="none", zorder=5))
+
+
+def _draw_helicopter_icon(ax, x, y, size=34):
+    ax.add_patch(patches.Ellipse((x, y), size * 0.92, size * 0.42, facecolor="#4dabf7", edgecolor="#1864ab", linewidth=1.4, zorder=5))
+    ax.add_patch(patches.Circle((x - size * 0.18, y - size * 0.02), size * 0.12, facecolor="#d0ebff", edgecolor="#1864ab", linewidth=0.8, zorder=6))
+    ax.plot([x - size * 0.50, x - size * 0.86], [y, y - size * 0.08], color="#1864ab", linewidth=2.0, zorder=5)
+    ax.add_patch(patches.Circle((x - size * 0.92, y - size * 0.09), size * 0.08, facecolor="#ff6b6b", edgecolor="#a61e4d", linewidth=0.8, zorder=6))
+    ax.plot([x - size * 0.50, x + size * 0.50], [y - size * 0.36, y - size * 0.36], color="#333333", linewidth=2.0, zorder=6)
+    ax.plot([x, x], [y - size * 0.22, y - size * 0.36], color="#333333", linewidth=1.4, zorder=6)
+    ax.plot([x - size * 0.28, x + size * 0.28], [y + size * 0.30, y + size * 0.30], color="#333333", linewidth=1.8, zorder=6)
+
+
+def _draw_plane_icon(ax, x, y, size=34):
+    ax.add_patch(patches.Polygon(
+        [(x, y - size * 0.62), (x + size * 0.18, y + size * 0.30), (x, y + size * 0.18), (x - size * 0.18, y + size * 0.30)],
+        closed=True, facecolor="#4dabf7", edgecolor="#1864ab", linewidth=1.2, zorder=6))
+    ax.add_patch(patches.Polygon(
+        [(x - size * 0.12, y - size * 0.05), (x - size * 0.58, y + size * 0.16), (x - size * 0.12, y + size * 0.18)],
+        closed=True, facecolor="#74c0fc", edgecolor="#1864ab", linewidth=1.0, zorder=5))
+    ax.add_patch(patches.Polygon(
+        [(x + size * 0.12, y - size * 0.05), (x + size * 0.58, y + size * 0.16), (x + size * 0.12, y + size * 0.18)],
+        closed=True, facecolor="#74c0fc", edgecolor="#1864ab", linewidth=1.0, zorder=5))
+    ax.add_patch(patches.Circle((x, y - size * 0.20), size * 0.07, facecolor="#d0ebff", edgecolor="#1864ab", linewidth=0.7, zorder=7))
+
+
+def _draw_rock_icon(ax, x, y, size=24):
+    pts = [(x - size * 0.55, y + size * 0.05), (x - size * 0.35, y - size * 0.42),
+           (x + size * 0.16, y - size * 0.55), (x + size * 0.52, y - size * 0.18),
+           (x + size * 0.42, y + size * 0.36), (x - size * 0.08, y + size * 0.52)]
+    ax.add_patch(patches.Polygon(pts, closed=True, facecolor="#868e96", edgecolor="#495057", linewidth=1.2, zorder=5))
+    ax.plot([x - size * 0.28, x + size * 0.05], [y - size * 0.12, y - size * 0.32], color="#adb5bd", linewidth=1.2, zorder=6)
+    ax.plot([x + size * 0.02, x + size * 0.30], [y + size * 0.18, y - size * 0.02], color="#6c757d", linewidth=1.1, zorder=6)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -95,15 +321,81 @@ class MABEnv(gym.Env):
         self._setup_pools()
         self.selected = 0
         self.step_count = 0
+        self.displayed_rewards = ["?"] * self.n_machines
         return np.array([self.selected], dtype=np.float32), {}
 
     def step(self, action: int):
         self.selected = int(action)
         pool = self.machine_pools[self.selected]
         reward = float(self.np_random.choice(pool))
+        self.displayed_rewards = ["?"] * self.n_machines
+        self.displayed_rewards[self.selected] = int(reward)
         self.step_count += 1
         done = self.step_count >= self.episode_step_limit
         return np.array([self.selected], dtype=np.float32), reward, done, False, {}
+    def render(self):
+        """Render MAB like RR MAB.html: 編號 / 獎勵池 / 選擇 / 獎勵."""
+        fig, ax = _blank_axes(figsize=(9.4, 4.6), xlim=(0, 10), ylim=(0, 6.4))
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        left = 0.35
+        top = 5.55
+        row_h = 0.82
+        col_w = [1.35, 5.35, 1.25, 1.45]
+        headers = ["編號", "獎勵池", "選擇", "獎勵"]
+        total_w = sum(col_w)
+
+        _ui_text(ax, left, 6.05, f"Multi-Armed Bandit  mode={self.mode}  step={self.step_count}/{self.episode_step_limit}",
+                ha="left", va="center", fontsize=13, fontweight="bold", color="#222222")
+
+        x = left
+        for label, width in zip(headers, col_w):
+            ax.add_patch(patches.Rectangle((x, top), width, row_h, facecolor="#f0f0f0", edgecolor="#d4d4d4", linewidth=1.0))
+            _ui_text(ax, x + width / 2, top + row_h / 2, label, ha="center", va="center", fontsize=12, fontweight="bold")
+            x += width
+
+        displayed = getattr(self, "displayed_rewards", ["?"] * self.n_machines)
+        for i in range(self.n_machines):
+            y = top - (i + 1) * row_h
+            row_face = "#fff7d6" if i == getattr(self, "selected", 0) else "#ffffff"
+            x = left
+            for width in col_w:
+                ax.add_patch(patches.Rectangle((x, y), width, row_h, facecolor=row_face, edgecolor="#dcdcdc", linewidth=1.0))
+                x += width
+
+            # 編號: RR uses 🎰 A0. Draw a colorful slot icon to avoid monochrome emoji rendering.
+            _draw_slot_icon(ax, left + 0.36, y + row_h / 2, size=0.36)
+            _ui_text(ax, left + 0.82, y + row_h / 2, f"A{i}", ha="left", va="center", fontsize=13, fontweight="bold", color="#222222")
+
+            # 獎勵池: draw all ten RR reward symbols in color.
+            pool_x0 = left + col_w[0] + 0.30
+            for j, reward_value in enumerate(getattr(self, "machine_pools", [[0] * 10])[i]):
+                _draw_reward_icon(ax, reward_value, pool_x0 + j * 0.47, y + row_h / 2, size=0.34)
+
+            # 選擇: RR shows 👈 or 🔘. Use a yellow pointer or grey radio dot.
+            select_cx = left + col_w[0] + col_w[1] + col_w[2] / 2
+            select_cy = y + row_h / 2
+            if i == getattr(self, "selected", 0):
+                ax.add_patch(patches.Polygon(
+                    [(select_cx - 0.24, select_cy), (select_cx + 0.18, select_cy + 0.22),
+                     (select_cx + 0.08, select_cy + 0.06), (select_cx + 0.34, select_cy + 0.06),
+                     (select_cx + 0.34, select_cy - 0.06), (select_cx + 0.08, select_cy - 0.06),
+                     (select_cx + 0.18, select_cy - 0.22)],
+                    closed=True, facecolor="#ffd447", edgecolor="#996f00", linewidth=1.0))
+            else:
+                ax.add_patch(patches.Circle((select_cx, select_cy), 0.14, facecolor="#e9ecef", edgecolor="#868e96", linewidth=1.0))
+
+            # 獎勵: unknown until selected this step, matching RR's ❔ behavior.
+            reward_cx = left + col_w[0] + col_w[1] + col_w[2] + col_w[3] / 2
+            _draw_reward_icon(ax, displayed[i], reward_cx, y + row_h / 2, size=0.40)
+
+        progress_y = top - (self.n_machines + 1) * row_h + 0.22
+        ax.add_patch(patches.Rectangle((left, progress_y), total_w, 0.13, facecolor="#e5e5e5", edgecolor="none"))
+        ax.add_patch(patches.Rectangle((left, progress_y), total_w * self.step_count / self.episode_step_limit, 0.13,
+                                       facecolor="#3ca65c", edgecolor="none"))
+        _ui_text(ax, left, progress_y - 0.26, "每 10 次拉霸為一回合", ha="left", va="center", fontsize=10, color="#555555")
+        return _figure_to_rgb_array(fig)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -172,6 +464,43 @@ class Maze1DEnv(gym.Env):
             done = True
 
         return int(self.pos), reward, done, False, {}
+    def render(self):
+        """Render the 1D maze with colorful RR-style symbols."""
+        fig, ax = _blank_axes(figsize=(8, 1.8), xlim=(0, self.grid_size), ylim=(0, 1))
+        _ui_text(ax, 0, 1.12, f"Maze1D feedback={self.feedback_mode}", ha="left", va="center", fontsize=13, fontweight="bold")
+
+        for x in range(self.grid_size):
+            face = "#ffffff"
+            if x == 0:
+                face = "#ffe3e3"
+            elif x == self.grid_size - 1:
+                face = "#def7e5"
+            elif self.feedback_mode == "positive" and x != self.pos:
+                face = "#fff9db" if x > self.pos and x < 9 else "#fff0f0"
+            elif self.feedback_mode in ("negative", "pie") and x != self.pos:
+                face = "#fff9db" if 0 < x < self.pos else "#fff0f0"
+            ax.add_patch(patches.Rectangle((x, 0), 1, 1, linewidth=1.2, edgecolor="#333333", facecolor=face))
+
+        if self.feedback_mode == "positive":
+            for x in range(1, 9):
+                if x < self.pos:
+                    _draw_fire_icon(ax, x + 0.5, 0.5, size=0.34)
+                elif x > self.pos:
+                    _draw_reward_icon(ax, 1, x + 0.5, 0.5, size=0.36)
+        elif self.feedback_mode in ("negative", "pie"):
+            for x in range(1, 9):
+                if x < self.pos:
+                    _draw_reward_icon(ax, 1, x + 0.5, 0.5, size=0.36)
+                elif x > self.pos:
+                    _draw_fire_icon(ax, x + 0.5, 0.5, size=0.34)
+
+        _draw_bomb_icon(ax, 0.5, 0.5, size=0.54)
+        if self.feedback_mode == "pie":
+            _draw_pizza_icon(ax, self.grid_size - 0.5, 0.5, size=0.58)
+        else:
+            _draw_trophy_icon(ax, self.grid_size - 0.5, 0.5, size=0.58)
+        _draw_person_icon(ax, self.pos + 0.5, 0.5, size=0.62)
+        return _figure_to_rgb_array(fig)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -220,6 +549,21 @@ class Maze2DEnv(gym.Env):
         done = (self.x == 9 and self.y == 9)
         reward = 10.0 if done else 0.0
         return np.array([self.x, self.y], dtype=np.float32), reward, done, False, {}
+    def render(self):
+        """Render the 2D maze with colorful RR-style symbols."""
+        fig, ax = _blank_axes(figsize=(6, 6), xlim=(0, self.grid_size), ylim=(0, self.grid_size))
+        _ui_text(ax, 0, 10.35, "Maze2D route", ha="left", va="center", fontsize=14, fontweight="bold")
+
+        for x in range(self.grid_size):
+            for y in range(self.grid_size):
+                face = "#ffffff"
+                if x == 9 and y == 9:
+                    face = "#def7e5"
+                ax.add_patch(patches.Rectangle((x, y), 1, 1, linewidth=0.8, edgecolor="#555555", facecolor=face))
+
+        _draw_trophy_icon(ax, 9.5, 9.5, size=0.58)
+        _draw_person_icon(ax, self.x + 0.5, self.y + 0.5, size=0.58)
+        return _figure_to_rgb_array(fig)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -346,6 +690,17 @@ class HeliEnv(gym.Env):
                 return self._obs(), reward + self.CRASH_P, True, False, {}
 
         return self._obs(), reward, False, False, {}
+    def render(self):
+        """Render the helicopter game with a colorful RR-style helicopter."""
+        fig, ax = _blank_axes(figsize=(6, 6), xlim=(0, self.CANVAS_W), ylim=(self.CANVAS_H, 0))
+        _ui_text(ax, 8, -18, f"Heli score={self.score}", ha="left", va="center", fontsize=14, fontweight="bold")
+
+        ax.add_patch(patches.Rectangle((0, 0), self.CANVAS_W, self.CANVAS_H, facecolor="#edf7ff", edgecolor="#333333"))
+        for wall in self.walls:
+            ax.add_patch(patches.Rectangle((wall["x"], 0), self.WALL_WIDTH, wall["gap_top"], facecolor="#46a05a", edgecolor="#26723a"))
+            ax.add_patch(patches.Rectangle((wall["x"], wall["gap_bottom"]), self.WALL_WIDTH, self.CANVAS_H - wall["gap_bottom"], facecolor="#46a05a", edgecolor="#26723a"))
+        _draw_helicopter_icon(ax, self.HELI_X, self.heli_y, size=self.HELI_SIZE)
+        return _figure_to_rgb_array(fig)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -501,6 +856,205 @@ class FighterEnv(gym.Env):
             return self._normalize(), reward, True, False, {"result": "crash"}
 
         return self._normalize(), reward, False, False, {}
+    def render(self):
+        """Render the fighter game with colorful RR-style plane, rock, and bullet."""
+        fig, ax = _blank_axes(figsize=(5.4, 6.5), xlim=(0, self.CANVAS_W), ylim=(self.CANVAS_H, 0))
+        _ui_text(ax, 8, -20, f"Fighter hits={self.hits}/{self.CLEAR_HITS}", ha="left", va="center", fontsize=14, fontweight="bold")
+
+        ax.add_patch(patches.Rectangle((0, 0), self.CANVAS_W, self.CANVAS_H, facecolor="#f7fbff", edgecolor="#333333"))
+        ax.axvline(self.LANE_MIN, color="#999999", linewidth=1)
+        ax.axvline(self.LANE_MAX, color="#999999", linewidth=1)
+        _draw_rock_icon(ax, self.rock["x"], self.rock["y"], size=28)
+        _draw_plane_icon(ax, self.player_x, self.PLAYER_Y, size=34)
+        if self.bullet is not None:
+            ax.add_patch(patches.FancyBboxPatch(
+                (self.bullet["x"] - 3, self.bullet["y"] - 12), 6, 20,
+                boxstyle="round,pad=0.0,rounding_size=2",
+                facecolor="#ffd43b", edgecolor="#f08c00", linewidth=0.8, zorder=6))
+        return _figure_to_rgb_array(fig)
+
+
+# ─────────────────────────────────────────────────────────────
+# Colab HTML renderers with native color emoji
+# ─────────────────────────────────────────────────────────────
+
+def _rr_reward_emoji(value) -> str:
+    if value == "?":
+        return "❔"
+    return _REWARD_EMOJI.get(int(value), "❔")
+
+
+def _rr_html_shell(title: str, body: str, width: str = "fit-content") -> str:
+    return f"""
+<div class="rr-env" style="width:{width}; font-family: system-ui, -apple-system, BlinkMacSystemFont,
+            'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', 'Microsoft JhengHei', sans-serif;
+            color:#222; line-height:1.25;">
+  <div style="font-weight:800; font-size:18px; margin:0 0 10px 0;">{title}</div>
+  {body}
+</div>
+"""
+
+
+def _mab_render_html(self) -> str:
+    displayed = getattr(self, "displayed_rewards", ["?"] * self.n_machines)
+    rows = []
+    for i in range(self.n_machines):
+        selected = i == getattr(self, "selected", 0)
+        bg = "#fff7d6" if selected else "#fff"
+        pool = "".join(_rr_reward_emoji(v) for v in getattr(self, "machine_pools", [[0] * 10])[i])
+        selector = "👈" if selected else "🔘"
+        reward = _rr_reward_emoji(displayed[i])
+        rows.append(f"""
+        <tr style="background:{bg};">
+          <td style="border:1px solid #ddd; padding:10px 12px; text-align:center; white-space:nowrap;">🎰 A{i}</td>
+          <td style="border:1px solid #ddd; padding:10px 12px; text-align:center; letter-spacing:2px;">{pool}</td>
+          <td style="border:1px solid #ddd; padding:10px 12px; text-align:center;">{selector}</td>
+          <td style="border:1px solid #ddd; padding:10px 12px; text-align:center;">{reward}</td>
+        </tr>
+        """)
+
+    progress = int(100 * self.step_count / self.episode_step_limit)
+    body = f"""
+    <table style="border-collapse:collapse; font-size:28px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.08);">
+      <thead>
+        <tr style="background:#f0f0f0;">
+          <th style="border:1px solid #ddd; padding:10px 12px; text-align:center;">編號</th>
+          <th style="border:1px solid #ddd; padding:10px 12px; text-align:center;">獎勵池</th>
+          <th style="border:1px solid #ddd; padding:10px 12px; text-align:center;">選擇</th>
+          <th style="border:1px solid #ddd; padding:10px 12px; text-align:center;">獎勵</th>
+        </tr>
+      </thead>
+      <tbody>{''.join(rows)}</tbody>
+    </table>
+    <div style="height:8px; background:#e5e5e5; margin-top:10px; width:100%;">
+      <div style="height:8px; background:#3ca65c; width:{progress}%;"></div>
+    </div>
+    <div style="font-size:13px; color:#555; margin-top:6px;">mode={self.mode} · step={self.step_count}/{self.episode_step_limit} · 每 10 次拉霸為一回合</div>
+    """
+    return _rr_html_shell("🎰 Multi-Armed Bandit", body)
+
+
+def _maze1d_render_html(self) -> str:
+    cells = []
+    for i in range(self.grid_size):
+        icon = ""
+        bg = "#fff"
+        if i == 0:
+            icon = "💣"
+            bg = "#ffe3e3"
+        elif i == self.grid_size - 1:
+            icon = "🍕" if self.feedback_mode == "pie" else "🏆"
+            bg = "#def7e5"
+        elif self.feedback_mode == "positive":
+            if i < self.pos:
+                icon = "🔥"
+                bg = "#fff0f0"
+            elif i > self.pos:
+                icon = "🍬"
+                bg = "#fff9db"
+        elif self.feedback_mode in ("negative", "pie"):
+            if i < self.pos:
+                icon = "🍬"
+                bg = "#fff9db"
+            elif i > self.pos:
+                icon = "🔥"
+                bg = "#fff0f0"
+
+        if i == self.pos:
+            icon = "🧑"
+            bg = "#d3f9d8"
+
+        cells.append(f"""
+        <div style="width:50px; height:50px; display:flex; align-items:center; justify-content:center;
+                    border:1px solid #111; background:{bg}; font-size:38px; box-sizing:border-box;">{icon}</div>
+        """)
+
+    body = f"""
+    <div style="display:flex; width:500px; height:50px;">{''.join(cells)}</div>
+    <div style="font-size:13px; color:#555; margin-top:8px;">playerPos={self.pos} · feedback={self.feedback_mode}</div>
+    """
+    return _rr_html_shell("1D Maze", body, width="520px")
+
+
+def _maze2d_render_html(self) -> str:
+    cells = []
+    for y in reversed(range(self.grid_size)):
+        for x in range(self.grid_size):
+            icon = ""
+            bg = "#fff"
+            if x == 9 and y == 9:
+                icon = "🏆"
+                bg = "#def7e5"
+            if x == self.x and y == self.y:
+                icon = "🧑"
+                bg = "#d3f9d8"
+            cells.append(f"""
+            <div style="width:42px; height:42px; display:flex; align-items:center; justify-content:center;
+                        border:1px solid #555; background:{bg}; font-size:30px; box-sizing:border-box;">{icon}</div>
+            """)
+
+    body = f"""
+    <div style="display:grid; grid-template-columns:repeat(10, 42px); grid-template-rows:repeat(10, 42px);
+                width:420px; height:420px;">{''.join(cells)}</div>
+    <div style="font-size:13px; color:#555; margin-top:8px;">state=({self.x}, {self.y}) · goal=(9, 9)</div>
+    """
+    return _rr_html_shell("2D Maze", body, width="430px")
+
+
+def _heli_render_html(self) -> str:
+    walls = []
+    for wall in self.walls:
+        x = wall["x"]
+        walls.append(f"""
+        <div style="position:absolute; left:{x}px; top:0; width:{self.WALL_WIDTH}px; height:{wall['gap_top']}px;
+                    background:#46a05a; border:1px solid #26723a; box-sizing:border-box;"></div>
+        <div style="position:absolute; left:{x}px; top:{wall['gap_bottom']}px; width:{self.WALL_WIDTH}px;
+                    height:{self.CANVAS_H - wall['gap_bottom']}px; background:#46a05a;
+                    border:1px solid #26723a; box-sizing:border-box;"></div>
+        """)
+
+    body = f"""
+    <div style="position:relative; width:{self.CANVAS_W}px; height:{self.CANVAS_H}px; background:#edf7ff;
+                border:2px solid #333; overflow:hidden; box-sizing:content-box;">
+      {''.join(walls)}
+      <div style="position:absolute; left:{self.HELI_X - 20}px; top:{self.heli_y - 20}px; font-size:34px; line-height:1;">🚁</div>
+    </div>
+    <div style="font-size:13px; color:#555; margin-top:8px;">score={self.score} · mode={self.mode}</div>
+    """
+    return _rr_html_shell("Heli", body, width=f"{self.CANVAS_W + 8}px")
+
+
+def _fighter_render_html(self) -> str:
+    bullet = ""
+    if self.bullet is not None:
+        bullet = f"""<div style="position:absolute; left:{self.bullet['x'] - 5}px; top:{self.bullet['y'] - 12}px;
+                         font-size:18px; line-height:1; color:#f2b705;">🟡</div>"""
+
+    body = f"""
+    <div style="position:relative; width:{self.CANVAS_W}px; height:{self.CANVAS_H}px; background:#f7fbff;
+                border:2px solid #333; overflow:hidden; box-sizing:content-box;">
+      <div style="position:absolute; left:{self.LANE_MIN}px; top:0; width:1px; height:{self.CANVAS_H}px; background:#999;"></div>
+      <div style="position:absolute; left:{self.LANE_MAX}px; top:0; width:1px; height:{self.CANVAS_H}px; background:#999;"></div>
+      <div style="position:absolute; left:{self.rock['x'] - 18}px; top:{self.rock['y'] - 18}px; font-size:34px; line-height:1;">🪨</div>
+      <div style="position:absolute; left:{self.player_x - 22}px; top:{self.PLAYER_Y - 22}px; font-size:40px; line-height:1; transform:rotate(-90deg);">✈️</div>
+      {bullet}
+    </div>
+    <div style="font-size:13px; color:#555; margin-top:8px;">hits={self.hits}/{self.CLEAR_HITS} · mode={self.mode}</div>
+    """
+    return _rr_html_shell("Fighter", body, width=f"{self.CANVAS_W + 8}px")
+
+
+def show_env(env):
+    """Display an RR-style color emoji game view in Colab/Jupyter."""
+    from IPython.display import HTML, display
+    display(HTML(env.render_html()))
+
+
+MABEnv.render_html = _mab_render_html
+Maze1DEnv.render_html = _maze1d_render_html
+Maze2DEnv.render_html = _maze2d_render_html
+HeliEnv.render_html = _heli_render_html
+FighterEnv.render_html = _fighter_render_html
 
 
 # ─────────────────────────────────────────────────────────────
@@ -635,3 +1189,70 @@ def plot_maze2d_qtable(Q, bins=6):
     ax.set_title("Maze2D Q-Table — Best Action per State\n(color = confidence, arrow = preferred direction)")
     plt.tight_layout()
     plt.show()
+
+
+
+
+
+
+
+
+
+# ─────────────────────────────────────────────────────────────
+# Colab animation helpers
+# ─────────────────────────────────────────────────────────────
+
+def animate_actions(env, actions, delay=0.35, reset=False, show_initial=True, stop_on_done=True):
+    """
+    Play an action sequence in Colab/Jupyter by repeatedly updating render_html().
+
+    Example:
+        env = Maze1DEnv(start_pos=4)
+        env.reset()
+        animate_actions(env, [1, 1, 1, 1, 1], delay=0.4)
+    """
+    import time
+    from IPython.display import HTML, clear_output, display
+
+    if reset:
+        env.reset()
+
+    if show_initial:
+        clear_output(wait=True)
+        display(HTML(env.render_html()))
+        time.sleep(delay)
+
+    last = None
+    for step_idx, action in enumerate(actions, start=1):
+        obs, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
+        last = (obs, reward, terminated, truncated, info)
+
+        clear_output(wait=True)
+        display(HTML(env.render_html()))
+        print(f"step={step_idx}  action={action}  reward={reward}  done={done}")
+        time.sleep(delay)
+
+        if done and stop_on_done:
+            break
+
+    return last
+
+
+def animate_random(env, steps=30, delay=0.25, reset=True, stop_on_done=True):
+    """
+    Play random actions with an RR-style color emoji view in Colab/Jupyter.
+
+    This is useful as a quick visual smoke test before plugging in Q-learning.
+    """
+    if reset:
+        env.reset()
+    actions = [env.action_space.sample() for _ in range(steps)]
+    return animate_actions(
+        env,
+        actions,
+        delay=delay,
+        reset=False,
+        show_initial=True,
+        stop_on_done=stop_on_done,
+    )

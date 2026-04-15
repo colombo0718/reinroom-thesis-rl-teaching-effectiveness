@@ -1,0 +1,343 @@
+﻿import json
+import os
+
+
+os.makedirs("notebooks", exist_ok=True)
+
+
+def code(lines):
+    src = [line + "\n" for line in lines[:-1]] + [lines[-1]]
+    return {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": src,
+    }
+
+
+def md(lines):
+    src = [line + "\n" for line in lines[:-1]] + [lines[-1]]
+    return {"cell_type": "markdown", "metadata": {}, "source": src}
+
+
+def nb(cells):
+    return {
+        "nbformat": 4,
+        "nbformat_minor": 0,
+        "metadata": {
+            "colab": {"provenance": []},
+            "kernelspec": {"display_name": "Python 3", "name": "python3"},
+            "language_info": {"name": "python"},
+        },
+        "cells": cells,
+    }
+
+
+SETUP = [
+    "# ── Setup：下載 RR Colab 環境並匯入 ─────────────────────────",
+    "RR_ENVS_URL = 'https://raw.githubusercontent.com/colombo0718/reinroom-thesis-rl-teaching-effectiveness/main/notebooks/rr_envs.py'",
+    "",
+    "!rm -f rr_envs.py",
+    "!wget -q \"{RR_ENVS_URL}\" -O rr_envs.py",
+    "!pip install gymnasium matplotlib numpy -q",
+    "",
+    "import importlib, sys, time",
+    "import numpy as np",
+    "import matplotlib.pyplot as plt",
+    "from IPython.display import HTML, clear_output, display",
+    "",
+    "if 'rr_envs' in sys.modules:",
+    "    del sys.modules['rr_envs']",
+    "",
+    "from rr_envs import (",
+    "    MABEnv, Maze1DEnv, Maze2DEnv, HeliEnv, FighterEnv,",
+    "    show_env, animate_actions, animate_random, run_q_learning, plot_training, plot_maze2d_qtable,",
+    ")",
+    "",
+    "def make_key_fn(env, bins=None):",
+    "    from gymnasium import spaces",
+    "    if isinstance(env.observation_space, spaces.Discrete):",
+    "        return lambda obs: int(obs)",
+    "    obs_dim = env.observation_space.shape[0]",
+    "    if bins is None:",
+    "        bins = 6",
+    "    low, high = env.observation_space.low, env.observation_space.high",
+    "    edges = [np.linspace(low[i], high[i], bins + 1) for i in range(obs_dim)]",
+    "    def to_key(obs):",
+    "        return tuple(int(np.clip(np.digitize(obs[i], edges[i]) - 1, 0, bins - 1)) for i in range(obs_dim))",
+    "    return to_key",
+    "",
+    "def animate_policy(env, Q, steps=40, bins=None, delay=0.25):",
+    "    to_key = make_key_fn(env, bins=bins)",
+    "    obs, info = env.reset()",
+    "    for step in range(steps):",
+    "        clear_output(wait=True)",
+    "        display(HTML(env.render_html()))",
+    "        state = to_key(obs)",
+    "        action = max(range(env.action_space.n), key=lambda a: Q.get((state, a), 0.0))",
+    "        obs, reward, terminated, truncated, info = env.step(action)",
+    "        done = terminated or truncated",
+    "        print(f'step={step+1}  action={action}  reward={reward:.2f}  done={done}')",
+    "        time.sleep(delay)",
+    "        if done:",
+    "            clear_output(wait=True)",
+    "            display(HTML(env.render_html()))",
+    "            print(f'finished at step={step+1}, final reward={reward:.2f}')",
+    "            break",
+    "",
+    "print('✅ RR Colab environments ready!')",
+]
+
+
+DAY1 = [
+    md([
+        "# RL Day 1 — RR 對標版 Colab 教材",
+        "**MAB → Maze1D → Maze2D**",
+        "",
+        "> 上課前請先點：**File → Save a copy in Drive**，建立自己的副本。",
+        "",
+        "今天只需要改標有 **🔧** 的參數，觀察 agent 的行為和訓練曲線如何改變。",
+    ]),
+    code(SETUP),
+    md([
+        "---",
+        "## Part 1 · MAB 多臂拉霸",
+        "",
+        "這個環境對標 RR 平台 `MAB.html`。",
+        "",
+        "- `❌ = 0`",
+        "- `🍬 = 1`",
+        "- `🪙 = 3`",
+        "- `💎 = 10`",
+        "",
+        "### 🔧 任務",
+        "1. 先跑 `slight` 模式。",
+        "2. 再把 `MAB_MODE` 改成 `jackpot`。",
+        "3. 觀察探索率 `EPSILON` 高低對學習的影響。",
+    ]),
+    code([
+        "# ═══════════════ 🔧 只改這裡 ═══════════════",
+        "MAB_MODE = 'slight'     # 'same' / 'fixed' / 'slight' / 'jackpot'",
+        "EPISODES = 400",
+        "ALPHA = 0.5",
+        "GAMMA = 0.9",
+        "EPSILON = 0.2          # try: 0.05 / 0.2 / 0.6",
+        "# ═══════════════════════════════════════════",
+        "",
+        "env = MABEnv(mode=MAB_MODE)",
+        "obs, info = env.reset()",
+        "show_env(env)",
+        "",
+        "print('先看隨機拉霸的動態效果：')",
+    ]),
+    code([
+        "animate_random(env, steps=10, delay=0.35)",
+    ]),
+    code([
+        "env = MABEnv(mode=MAB_MODE)",
+        "rewards, lengths, Q = run_q_learning(",
+        "    env, alpha=ALPHA, gamma=GAMMA, epsilon=EPSILON, n_episodes=EPISODES, bins=5, verbose=False",
+        ")",
+        "plot_training(rewards, lengths, label=f'MAB mode={MAB_MODE}, epsilon={EPSILON}', window=30)",
+        "",
+        "to_key = make_key_fn(env, bins=5)",
+        "print('Learned Q-values by observed selected machine state:')",
+        "for state_action, value in sorted(Q.items()):",
+        "    print(state_action, '=>', round(value, 3))",
+    ]),
+    md([
+        "---",
+        "## Part 2 · Maze1D 一維迷宮",
+        "",
+        "這個環境對標 RR 平台 `Maze1D.html`。",
+        "",
+        "- `💣` 炸彈：`-10`",
+        "- `🏆` 終點：`+10`",
+        "- `🍕` 畫大餅：`+2`",
+        "- 順境 / 逆境模式會改變路上的小回饋。",
+    ]),
+    code([
+        "# ═══════════════ 🔧 只改這裡 ═══════════════",
+        "START_POS = 4",
+        "FEEDBACK_MODE = 'none'     # 'none' / 'positive' / 'negative' / 'pie'",
+        "EPISODES = 500",
+        "ALPHA = 0.5",
+        "GAMMA = 0.9",
+        "EPSILON = 0.2",
+        "# ═══════════════════════════════════════════",
+        "",
+        "env = Maze1DEnv(start_pos=START_POS, feedback_mode=FEEDBACK_MODE)",
+        "env.reset()",
+        "show_env(env)",
+    ]),
+    code([
+        "# 先看指定動作：一路往右",
+        "env = Maze1DEnv(start_pos=START_POS, feedback_mode=FEEDBACK_MODE)",
+        "env.reset()",
+        "animate_actions(env, [1, 1, 1, 1, 1, 1], delay=0.45)",
+    ]),
+    code([
+        "env = Maze1DEnv(start_pos=START_POS, feedback_mode=FEEDBACK_MODE)",
+        "rewards, lengths, Q = run_q_learning(",
+        "    env, alpha=ALPHA, gamma=GAMMA, epsilon=EPSILON, n_episodes=EPISODES, verbose=False",
+        ")",
+        "plot_training(rewards, lengths, label=f'Maze1D feedback={FEEDBACK_MODE}', window=30)",
+        "",
+        "print('訓練後的 greedy policy：')",
+        "env = Maze1DEnv(start_pos=START_POS, feedback_mode=FEEDBACK_MODE)",
+        "animate_policy(env, Q, steps=12, delay=0.45)",
+    ]),
+    md([
+        "---",
+        "## Part 3 · Maze2D 二維迷宮",
+        "",
+        "這個環境對標 RR 平台 `Maze2D.html` / `Maze2D_emoji.html` 的座標任務。",
+        "",
+        "- 起點：`(0, 0)`",
+        "- 終點：`(9, 9)`",
+        "- 到達終點：`+10`",
+        "- 其他步驟：`0`",
+    ]),
+    code([
+        "# ═══════════════ 🔧 只改這裡 ═══════════════",
+        "EPISODES = 1000",
+        "ALPHA = 0.5",
+        "GAMMA = 0.95",
+        "EPSILON = 0.3",
+        "BINS = 10",
+        "# ═══════════════════════════════════════════",
+        "",
+        "env = Maze2DEnv()",
+        "env.reset()",
+        "show_env(env)",
+    ]),
+    code([
+        "# 先看一段手動路線：向右再向上",
+        "env = Maze2DEnv()",
+        "env.reset()",
+        "animate_actions(env, [4,4,4,4,1,1,1,1], delay=0.25, stop_on_done=False)",
+    ]),
+    code([
+        "env = Maze2DEnv()",
+        "rewards, lengths, Q = run_q_learning(",
+        "    env, alpha=ALPHA, gamma=GAMMA, epsilon=EPSILON, n_episodes=EPISODES, bins=BINS, verbose=False",
+        ")",
+        "plot_training(rewards, lengths, label=f'Maze2D epsilon={EPSILON}', window=50)",
+        "plot_maze2d_qtable(Q, bins=BINS)",
+        "",
+        "print('訓練後的 greedy policy：')",
+        "env = Maze2DEnv()",
+        "animate_policy(env, Q, steps=30, bins=BINS, delay=0.20)",
+    ]),
+]
+
+
+DAY2 = [
+    md([
+        "# RL Day 2 — RR 對標版 Colab 教材",
+        "**Heli → Fighter**",
+        "",
+        "> 上課前請先點：**File → Save a copy in Drive**，建立自己的副本。",
+        "",
+        "今天會看到比較即時、連續狀態的遊戲。請先觀察動態，再調整 **🔧** 參數。",
+    ]),
+    code(SETUP),
+    md([
+        "---",
+        "## Part 1 · Heli 直升機",
+        "",
+        "這個環境對標 RR 平台 `heli.html`。",
+        "",
+        "- 存活每步：`+0.01`",
+        "- 通過牆：`+1`",
+        "- 撞牆 / 撞邊界：`-10`",
+        "",
+        "動作：`0 = fall`，`1 = flap`。",
+    ]),
+    code([
+        "# ═══════════════ 🔧 只改這裡 ═══════════════",
+        "HELI_MODE = 'fixed'      # 'fixed' / 'small' / 'large'",
+        "EPISODES = 600",
+        "ALPHA = 0.5",
+        "GAMMA = 0.95",
+        "EPSILON = 0.25",
+        "BINS = 6",
+        "# ═══════════════════════════════════════════",
+        "",
+        "env = HeliEnv(mode=HELI_MODE)",
+        "env.reset()",
+        "show_env(env)",
+    ]),
+    code([
+        "# 先看隨機動作下的遊戲畫面",
+        "env = HeliEnv(mode=HELI_MODE)",
+        "animate_random(env, steps=80, delay=0.06, stop_on_done=True)",
+    ]),
+    code([
+        "env = HeliEnv(mode=HELI_MODE)",
+        "rewards, lengths, Q = run_q_learning(",
+        "    env, alpha=ALPHA, gamma=GAMMA, epsilon=EPSILON, n_episodes=EPISODES, bins=BINS, verbose=False",
+        ")",
+        "plot_training(rewards, lengths, label=f'Heli mode={HELI_MODE}, epsilon={EPSILON}', window=30)",
+        "",
+        "print('訓練後的 greedy policy：')",
+        "env = HeliEnv(mode=HELI_MODE)",
+        "animate_policy(env, Q, steps=120, bins=BINS, delay=0.06)",
+    ]),
+    md([
+        "---",
+        "## Part 2 · Fighter 戰機挑戰",
+        "",
+        "這個環境對標 RR 平台 `fighter.html`。",
+        "",
+        "- 子彈擊中岩石：`+10`",
+        "- 子彈飛出畫面 miss：`-1`",
+        "- 岩石撞到玩家：`-100`",
+        "- 擊中 10 次：clear",
+        "",
+        "動作：`0 = none`，`1 = left`，`2 = right`，`3 = shoot`。",
+    ]),
+    code([
+        "# ═══════════════ 🔧 只改這裡 ═══════════════",
+        "FIGHTER_MODE = 'fixed'   # 'fixed' / 'randomX' / 'randomXY' / 'falling' / 'drifting'",
+        "EPISODES = 800",
+        "ALPHA = 0.5",
+        "GAMMA = 0.95",
+        "EPSILON = 0.3",
+        "BINS = 6",
+        "# ═══════════════════════════════════════════",
+        "",
+        "env = FighterEnv(mode=FIGHTER_MODE)",
+        "env.reset()",
+        "show_env(env)",
+    ]),
+    code([
+        "# 先看固定策略：射擊後等待",
+        "env = FighterEnv(mode=FIGHTER_MODE)",
+        "env.reset()",
+        "animate_actions(env, [3] + [0] * 30, delay=0.08, stop_on_done=True)",
+    ]),
+    code([
+        "env = FighterEnv(mode=FIGHTER_MODE)",
+        "rewards, lengths, Q = run_q_learning(",
+        "    env, alpha=ALPHA, gamma=GAMMA, epsilon=EPSILON, n_episodes=EPISODES, bins=BINS, verbose=False",
+        ")",
+        "plot_training(rewards, lengths, label=f'Fighter mode={FIGHTER_MODE}, epsilon={EPSILON}', window=30)",
+        "",
+        "print('訓練後的 greedy policy：')",
+        "env = FighterEnv(mode=FIGHTER_MODE)",
+        "animate_policy(env, Q, steps=80, bins=BINS, delay=0.08)",
+    ]),
+]
+
+
+with open("notebooks/RL_Day1_RR.ipynb", "w", encoding="utf-8") as f:
+    json.dump(nb(DAY1), f, ensure_ascii=False, indent=2)
+
+with open("notebooks/RL_Day2_RR.ipynb", "w", encoding="utf-8") as f:
+    json.dump(nb(DAY2), f, ensure_ascii=False, indent=2)
+
+print("generated notebooks/RL_Day1_RR.ipynb")
+print("generated notebooks/RL_Day2_RR.ipynb")
+
