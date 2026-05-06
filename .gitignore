@@ -25,3 +25,6 @@ desktop.ini
 # 編輯器
 .vscode/
 *.swp
+
+# Claude Code 內部檔案
+.claude/
