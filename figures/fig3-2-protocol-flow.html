@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>圖 3-2 通訊協定訊息流程</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<style>
+  body {
+    margin: 0;
+    padding: 30px 40px;
+    font-family: "標楷體", "DFKai-SB", "PMingLiU", serif;
+    background: white;
+    width: 1200px;
+    height: 800px;
+    box-sizing: border-box;
+  }
+  .figure { display: flex; flex-direction: column; align-items: center; height: 100%; }
+  .title { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #555; margin-bottom: 12px; }
+  .diagram {
+    width: 1100px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+  .footnote {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.6;
+    max-width: 1100px;
+  }
+  /* 放大 mermaid SVG 至撐滿容器 */
+  .mermaid {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .mermaid svg {
+    width: 100% !important;
+    max-width: 1080px !important;
+    height: auto !important;
+  }
+  .mermaid .actor {
+    fill: #e3f2fd !important;
+    stroke: #1976d2 !important;
+  }
+  .mermaid .actor-line {
+    stroke: #aaa !important;
+  }
+  .mermaid text {
+    font-family: "標楷體", "DFKai-SB", serif !important;
+    font-size: 18px !important;
+  }
+  .mermaid .messageText {
+    font-size: 16px !important;
+  }
+  .mermaid .noteText {
+    font-size: 15px !important;
+  }
+</style>
+</head>
+<body>
+<div class="figure">
+  <div class="title">圖 3-2　RL Lab 通訊協定訊息流程</div>
+  <div class="subtitle">平台（父頁面）與遊戲環境（子 iframe）透過 postMessage 雙向通訊</div>
+  <div class="diagram">
+    <div class="mermaid" id="diagram">
+sequenceDiagram
+    participant Game as 子頁面：遊戲環境（iframe）
+    participant Lab as 父頁面：RL Lab 平台
+
+    Note over Lab,Game: 載入階段（每次 loadGame 觸發一次）
+    Lab->>Game: questInfo<br/>{ sessionId }
+    Game->>Lab: gameInfo<br/>{ stateInfo, actionInfo }
+    Note over Lab,Game: 平台依此自動建立 Q-Table 結構與動作按鈕
+
+    rect rgb(255, 248, 230)
+    loop 每一步互動：state-action-reward 迴圈
+        Lab->>Game: action<br/>{ action: index }
+        Game->>Lab: reward_state<br/>{ reward, state, done, sessionId }
+    end
+    end
+
+    Note over Lab,Game: 控制訊息（隨時可發）
+    Lab->>Game: pause / accel
+    </div>
+  </div>
+  <div class="footnote">
+    註：<strong>questInfo / action</strong>（平台 → 遊戲）；<strong>gameInfo / reward_state</strong>（遊戲 → 平台）。
+    <code>done: true</code> 時，<code>reward</code> 必須已包含終局懲罰（不另發 endEpisode）。
+    <code>sessionId</code> 由平台於每次 loadGame 遞增，遊戲需原封不動帶回，避免跨 session 訊息污染。
+    此設計使平台與遊戲在程式碼層面完全解耦——任何遵循此協定的網頁皆可作為訓練環境載入。
+  </div>
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'default',
+  fontFamily: '"標楷體", "DFKai-SB", serif',
+  sequence: {
+    actorMargin: 480,
+    width: 380,
+    height: 70,
+    boxMargin: 14,
+    boxTextMargin: 10,
+    noteMargin: 14,
+    messageMargin: 50,
+    mirrorActors: false,
+    showSequenceNumbers: false,
+    useMaxWidth: false,
+  },
+});
+</script>
+</body>
+</html>

@@ -14,33 +14,37 @@ ROOT = Path(__file__).parent.parent
 FIGURES_DIR = Path(__file__).parent
 IMAGES_DIR = ROOT / "images"
 
-# (HTML 檔, 輸出 PNG 名)
+# (HTML 檔, 輸出 PNG 名, viewport 寬, viewport 高)
 FIGURES = [
-    ("fig5-3-task-completion.html", "fig5-3.png"),
-    ("fig5-1-pretest-posttest-box.html", "fig5-1.png"),
-    ("fig5-2-gain-comparison.html", "fig5-2.png"),
-    ("fig5-4-section3-comparison.html", "fig5-4.png"),
-    ("fig5-5-sus-comparison.html", "fig5-5.png"),
+    ("fig3-2-protocol-flow.html",       "fig3-2.png", 1200, 800),
+    ("fig4-1-experiment-flow.html",     "fig4-1.png", 1400, 1100),
+    ("fig5-1-pretest-posttest-box.html","fig5-1.png", 1200, 800),
+    ("fig5-2-gain-comparison.html",     "fig5-2.png", 1200, 800),
+    ("fig5-3-task-completion.html",     "fig5-3.png", 1200, 800),
+    ("fig5-4-section3-comparison.html", "fig5-4.png", 1200, 800),
+    ("fig5-5-sus-comparison.html",      "fig5-5.png", 1200, 800),
 ]
 
 
-async def shot_one(page, html_file: str, png_name: str):
+async def shot_one(context, html_file: str, png_name: str, w: int, h: int):
     html_path = FIGURES_DIR / html_file
     if not html_path.exists():
         print(f"  ⚠ 跳過：{html_file}（不存在）")
         return False
 
+    page = await context.new_page()
+    await page.set_viewport_size({"width": w, "height": h})
     url = html_path.absolute().as_uri()
     await page.goto(url)
     await page.wait_for_load_state("networkidle")
-    # 給 Chart.js 動畫完成的時間
-    await asyncio.sleep(1.5)
+    # 給 Chart.js / Mermaid 渲染完成的時間
+    await asyncio.sleep(2.5)
 
     out_path = IMAGES_DIR / png_name
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    # 截整個 viewport（HTML 已固定 1200x800）
     await page.screenshot(path=str(out_path), full_page=False)
-    print(f"  ✅ {png_name}")
+    await page.close()
+    print(f"  ✅ {png_name}  ({w}x{h})")
     return True
 
 
@@ -50,12 +54,11 @@ async def main():
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(viewport={"width": 1200, "height": 800})
-        page = await context.new_page()
+        context = await browser.new_context()
 
-        for html_file, png_name in FIGURES:
+        for html_file, png_name, w, h in FIGURES:
             print(f"▶ {html_file}")
-            await shot_one(page, html_file, png_name)
+            await shot_one(context, html_file, png_name, w, h)
 
         await browser.close()
     print("\n完成。")
