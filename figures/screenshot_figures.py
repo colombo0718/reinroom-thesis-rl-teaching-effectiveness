@@ -15,14 +15,15 @@ FIGURES_DIR = Path(__file__).parent
 IMAGES_DIR = ROOT / "images"
 
 # (HTML 檔, 輸出 PNG 名, viewport 寬, viewport 高)
+# 註：移除 title/subtitle/footnote 後，body height 已縮減
 FIGURES = [
     ("fig3-2-protocol-flow.html",       "fig3-2.png", 1200, 800),
-    ("fig4-1-experiment-flow.html",     "fig4-1.png", 1400, 1100),
-    ("fig5-1-pretest-posttest-box.html","fig5-1.png", 1200, 800),
-    ("fig5-2-gain-comparison.html",     "fig5-2.png", 1200, 800),
-    ("fig5-3-task-completion.html",     "fig5-3.png", 1200, 800),
-    ("fig5-4-section3-comparison.html", "fig5-4.png", 1200, 800),
-    ("fig5-5-sus-comparison.html",      "fig5-5.png", 1200, 800),
+    ("fig4-1-experiment-flow.html",     "fig4-1.png", 1400, 980),
+    ("fig5-1-pretest-posttest-box.html","fig5-1.png", 1200, 640),
+    ("fig5-2-gain-comparison.html",     "fig5-2.png", 1200, 640),
+    ("fig5-3-task-completion.html",     "fig5-3.png", 1200, 640),
+    ("fig5-4-section3-comparison.html", "fig5-4.png", 1200, 640),
+    ("fig5-5-sus-comparison.html",      "fig5-5.png", 1200, 640),
 ]
 
 

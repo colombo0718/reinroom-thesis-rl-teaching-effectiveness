@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>圖 5-2 兩組增益比較</title>
+<title>圖：兩組配對樣本前後測增益比較</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 <script src="data.js"></script>
 <style>
@@ -12,57 +12,20 @@
     font-family: "標楷體", "DFKai-SB", "PMingLiU", serif;
     background: white;
     width: 1200px;
-    height: 800px;
+    height: 640px;
     box-sizing: border-box;
   }
   .figure { display: flex; flex-direction: column; align-items: center; height: 100%; }
-  .title { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #555; margin-bottom: 20px; }
-  .chart-row {
+  .chart-container {
     width: 1100px;
-    display: flex;
-    gap: 30px;
-    height: 480px;
-  }
-  .chart-half {
-    flex: 1;
+    height: 100%;
     position: relative;
-    border: 1px solid #eee;
-    padding: 16px;
-    border-radius: 8px;
-    background: #fafafa;
   }
-  .chart-title {
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 8px;
-  }
-  .chart-canvas-wrap { height: 380px; }
-  .footnote { margin-top: 20px; font-size: 13px; color: #444; line-height: 1.6; max-width: 1100px; }
-  .highlight { color: #c00; font-weight: bold; }
 </style>
 </head>
 <body>
 <div class="figure">
-  <div class="title">圖 5-2　兩組學生於概念測驗之增益比較</div>
-  <div class="subtitle">左：配對樣本 t-test（前後測皆完成者）；右：班級整體獨立樣本 t-test</div>
-  <div class="chart-row">
-    <div class="chart-half">
-      <div class="chart-title">配對樣本（A: n=10, B: n=12）</div>
-      <div class="chart-canvas-wrap"><canvas id="paired"></canvas></div>
-    </div>
-    <div class="chart-half">
-      <div class="chart-title">班級整體（A 前 26→後 18, B 前 15→後 12）</div>
-      <div class="chart-canvas-wrap"><canvas id="classlevel"></canvas></div>
-    </div>
-  </div>
-  <div class="footnote">
-    註：誤差線為標準誤（SE）。<br>
-    左圖：實驗組增益 +1.10（n.s.），對照組增益 +1.92*（p=0.01）；組間 gain 比較 t=−1.642, p=0.12 n.s.<br>
-    右圖：實驗組班級增益 +0.68（n.s.），<span class="highlight">對照組班級增益 +2.05** （p=0.003）</span>。
-    對照組碩士生於概念測驗達顯著進步，可部分歸因於學程程式背景優勢——詳見 5.1.5 節學程不對等之反向論證。
-  </div>
+  <div class="chart-container"><canvas id="chart"></canvas></div>
 </div>
 
 <script>
@@ -75,89 +38,71 @@ const colors = {
   B_border: 'rgba(255, 159, 67, 1)',
 };
 
-function makeChart(canvasId, labels, preA, postA, preB, postB, sigA, sigB) {
-  return new Chart(document.getElementById(canvasId), {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: '前測',
-          data: [preA, preB],
-          backgroundColor: [colors.A_pre, colors.B_pre],
-          borderColor: [colors.A_border, colors.B_border],
-          borderWidth: 2,
-          borderRadius: 3,
-        },
-        {
-          label: '後測',
-          data: [postA, postB],
-          backgroundColor: [colors.A_post, colors.B_post],
-          borderColor: [colors.A_border, colors.B_border],
-          borderWidth: 2,
-          borderRadius: 3,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top', labels: { font: { size: 14 } } },
-        tooltip: { enabled: false },
-      },
-      scales: {
-        x: { ticks: { font: { size: 14, weight: 'bold' } }, grid: { display: false } },
-        y: {
-          beginAtZero: true, max: 8,
-          ticks: { font: { size: 13 }, stepSize: 1 },
-          title: { display: true, text: '平均分數（滿分 8）', font: { size: 14 } },
-          grid: { color: '#eee' },
-        },
-      },
-    },
-    plugins: [{
-      id: 'gainArrow',
-      afterDatasetsDraw(chart) {
-        const { ctx } = chart;
-        const meta0 = chart.getDatasetMeta(0); // 前測
-        const meta1 = chart.getDatasetMeta(1); // 後測
-        const sigs = [sigA, sigB];
-        ctx.save();
-        for (let i = 0; i < 2; i++) {
-          const preBar = meta0.data[i];
-          const postBar = meta1.data[i];
-          const gainVal = chart.data.datasets[1].data[i] - chart.data.datasets[0].data[i];
-          const sig = sigs[i];
-          // 在後測棒子上方畫增益標籤
-          ctx.font = 'bold 16px sans-serif';
-          ctx.textAlign = 'center';
-          const isSig = sig.includes('*');
-          ctx.fillStyle = isSig ? '#c00' : '#444';
-          const labelY = postBar.y - 10;
-          ctx.fillText(`+${gainVal.toFixed(2)} ${sig}`, postBar.x, labelY);
-        }
-        ctx.restore();
-      },
-    }],
-  });
-}
-
 const ds = window.DATA.stats;
 
-// 左：配對樣本
-makeChart('paired',
-  ['實驗組 A', '對照組 B'],
-  ds.concept_paired_A.pre_M, ds.concept_paired_A.post_M,
-  ds.concept_paired_B.pre_M, ds.concept_paired_B.post_M,
-  'n.s.', 'p=.01*');
-
-// 右：班級整體
-makeChart('classlevel',
-  ['實驗組 A', '對照組 B'],
-  ds.concept_class_A.pre_M, ds.concept_class_A.post_M,
-  ds.concept_class_B.pre_M, ds.concept_class_B.post_M,
-  'n.s.', 'p=.003**');
+new Chart(document.getElementById('chart'), {
+  type: 'bar',
+  data: {
+    labels: ['RR 組（n=10）', 'Colab 組（n=12）'],
+    datasets: [
+      {
+        label: '前測',
+        data: [ds.concept_paired_A.pre_M, ds.concept_paired_B.pre_M],
+        backgroundColor: [colors.A_pre, colors.B_pre],
+        borderColor: [colors.A_border, colors.B_border],
+        borderWidth: 2,
+        borderRadius: 3,
+      },
+      {
+        label: '後測',
+        data: [ds.concept_paired_A.post_M, ds.concept_paired_B.post_M],
+        backgroundColor: [colors.A_post, colors.B_post],
+        borderColor: [colors.A_border, colors.B_border],
+        borderWidth: 2,
+        borderRadius: 3,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 16 } } },
+      tooltip: { enabled: false },
+    },
+    scales: {
+      x: { ticks: { font: { size: 16, weight: 'bold' } }, grid: { display: false } },
+      y: {
+        beginAtZero: true, max: 8,
+        ticks: { font: { size: 14 }, stepSize: 1 },
+        title: { display: true, text: '平均分數（滿分 8）', font: { size: 15 } },
+        grid: { color: '#eee' },
+      },
+    },
+  },
+  plugins: [{
+    id: 'gainArrow',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      const meta0 = chart.getDatasetMeta(0); // 前測
+      const meta1 = chart.getDatasetMeta(1); // 後測
+      const sigs = ['n.s.', 'p=.01*'];
+      ctx.save();
+      for (let i = 0; i < 2; i++) {
+        const postBar = meta1.data[i];
+        const gainVal = chart.data.datasets[1].data[i] - chart.data.datasets[0].data[i];
+        const sig = sigs[i];
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        const isSig = sig.includes('*');
+        ctx.fillStyle = isSig ? '#c00' : '#444';
+        const labelY = postBar.y - 12;
+        ctx.fillText(`+${gainVal.toFixed(2)} ${sig}`, postBar.x, labelY);
+      }
+      ctx.restore();
+    },
+  }],
+});
 </script>
 </body>
 </html>

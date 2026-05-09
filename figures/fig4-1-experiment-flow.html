@@ -2,24 +2,21 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>圖 4-1 A/B 教學實驗流程示意圖</title>
+<title>圖：A/B 教學實驗流程</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
 <style>
   body {
     margin: 0;
-    padding: 25px 40px;
+    padding: 30px 40px;
     font-family: "標楷體", "DFKai-SB", "PMingLiU", serif;
     background: white;
     width: 1400px;
-    height: 1100px;
+    height: 980px;
     box-sizing: border-box;
   }
-  .figure { display: flex; flex-direction: column; align-items: center; height: 100%; }
-  .title { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #555; margin-bottom: 16px; }
   .diagram {
     width: 1320px;
-    flex: 1;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -29,13 +26,6 @@
     max-width: 1320px !important;
     height: auto !important;
   }
-  .footnote {
-    margin-top: 12px;
-    font-size: 13px;
-    color: #444;
-    line-height: 1.6;
-    max-width: 1320px;
-  }
   .mermaid text {
     font-family: "標楷體", "DFKai-SB", serif !important;
     font-size: 14px !important;
@@ -43,11 +33,8 @@
 </style>
 </head>
 <body>
-<div class="figure">
-  <div class="title">圖 4-1　A/B 教學實驗流程示意圖</div>
-  <div class="subtitle">準實驗設計：兩組學生透過 18 支共用 / 分流影片接受標準化教學介入</div>
-  <div class="diagram">
-    <div class="mermaid">
+<div class="diagram">
+  <div class="mermaid">
 flowchart TB
     Start([開始])
 
@@ -59,35 +46,35 @@ flowchart TB
 
     PT --> Split{依班級分組}
 
-    subgraph A[實驗組 A：大學部資工大二，n=26 → 18]
+    subgraph A[RR 組（A）]
         direction TB
-        A_D1[Day 1 教學<br/>V0~V2 共用理論影片<br/>+ A0~A2 RL Lab 操作影片<br/>→ T1 MAB / T2 Maze1D]
-        A_D2[Day 2 教學<br/>V3~V5 共用理論影片<br/>+ A3~A5 RL Lab 操作影片<br/>→ T3 Maze2D / T4 Heli / T5 Fighter]
+        A_D1[Day 1 教學<br/>V0~V2 共用理論影片<br/>+ A0~A2 RR 操作影片<br/>→ T1 MAB / T2 Maze1D]
+        A_D2[Day 2 教學<br/>V3~V5 共用理論影片<br/>+ A3~A5 RR 操作影片<br/>→ T3 Maze2D / T4 Heli / T5 Fighter]
         A_D1 --> A_D2
     end
 
-    subgraph B[對照組 B：碩士班資工碩一，n=15 → 12]
+    subgraph B[Colab 組（B）]
         direction TB
         B_D1[Day 1 教學<br/>V0~V2 共用理論影片<br/>+ B0~B2 Colab 操作影片<br/>→ T1 MAB / T2 Maze1D]
         B_D2[Day 2 教學<br/>V3~V5 共用理論影片<br/>+ B3~B5 Colab 操作影片<br/>→ T3 Maze2D / T4 Heli / T5 Fighter]
         B_D1 --> B_D2
     end
 
-    Split -->|RL Lab 介面| A
+    Split -->|RR 介面| A
     Split -->|Gymnasium + Colab| B
 
     A --> PostA
     B --> PostB
 
-    subgraph PostA[Day 2 結束：A 組後測]
+    subgraph PostA[Day 2 結束：RR 組後測]
         POSTA[8 題概念後測<br/>+ Section 3 平台回饋<br/>+ NASA-TLX + SUS<br/>+ 開放題]
     end
 
-    subgraph PostB[Day 2 結束：B 組後測]
+    subgraph PostB[Day 2 結束：Colab 組後測]
         POSTB[8 題概念後測<br/>+ Section 3 平台回饋<br/>+ NASA-TLX + SUS<br/>+ 開放題]
     end
 
-    PostA --> Analysis[資料分析<br/>三層次 t-test 切法 + 質性歸納]
+    PostA --> Analysis[資料分析<br/>配對 t-test + gain score + 完成時間 t-test + 質性歸納]
     PostB --> Analysis
 
     Analysis --> End([研究結論])
@@ -103,12 +90,6 @@ flowchart TB
     class B_D1,B_D2 B
     class POSTA,POSTB post
     class Analysis ana
-    </div>
-  </div>
-  <div class="footnote">
-    註：18 支教學影片包含 6 支共用 RL 理論影片（V0–V5）、6 支實驗組平台操作影片（A0–A5）、6 支對照組平台操作影片（B0–B5）。
-    兩組僅在「平台操作影片」與「實際操作介面」上存在差異，其餘教學內容（理論影片、任務序列、講師講稿、前後測題目）均完全相同。
-    詳細的 13 步驟教學節奏與 Treatment Fidelity 七層次標準化設計見 4.4 節。
   </div>
 </div>
 

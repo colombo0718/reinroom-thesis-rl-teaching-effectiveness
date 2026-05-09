@@ -13,12 +13,10 @@
     font-family: "標楷體", "DFKai-SB", "PMingLiU", serif;
     background: white;
     width: 1200px;
-    height: 800px;
+    height: 640px;
     box-sizing: border-box;
   }
   .figure { display: flex; flex-direction: column; align-items: center; height: 100%; }
-  .title { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #555; margin-bottom: 16px; }
   .chart-container { width: 1100px; height: 540px; position: relative; }
   .interpretation-bands {
     width: 1100px;
@@ -33,33 +31,24 @@
     background: #f5f5f5;
     border-radius: 4px;
   }
-  .footnote { margin-top: 14px; font-size: 13px; color: #444; line-height: 1.6; max-width: 1100px; }
   .highlight { color: #c00; font-weight: bold; }
 </style>
 </head>
 <body>
 <div class="figure">
-  <div class="title">圖 5-5　兩組對教學平台之系統易用性（SUS）比較</div>
-  <div class="subtitle">SUS（System Usability Scale）：標準十題量表，分數 0–100</div>
   <div class="chart-container">
     <canvas id="chart"></canvas>
   </div>
   <div class="interpretation-bands">
     <span class="band">參考標準：&lt;50 不可接受 ｜ 50–70 Marginal ｜ 70–85 Good ｜ &gt;85 Excellent</span>
   </div>
-  <div class="footnote">
-    註：箱型圖呈現中位數、四分位距與離群值；圓點為個別學生 SUS 分數。
-    <span class="highlight">對照組 SUS（M=73.5，Good 區間）顯著高於實驗組（M=59.0，Marginal 區間，t=−2.188, p=0.037*）</span>。
-    A 組標準差（19.8）較 B 組（14.1）大，反映實驗組學生對 RL Lab 反應呈兩極化；
-    排除直線式作答（n=2）後，A 組 M=60.2，p=0.066 接近顯著但未達閾值。
   </div>
-</div>
 
 <script>
 const sus = window.DATA.sus;
 
 const chartData = {
-  labels: ['實驗組 A（全部 n=18）', '實驗組 A（排除直線式 n=16）', '對照組 B（n=12）'],
+  labels: ['RR 組（全部 n=18）', 'RR 組（排除直線式 n=16）', 'Colab 組（n=12）'],
   datasets: [{
     label: 'SUS 分數',
     data: [sus.A_all, sus.A_clean, sus.B],

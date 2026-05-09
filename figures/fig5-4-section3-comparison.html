@@ -12,31 +12,20 @@
     font-family: "標楷體", "DFKai-SB", "PMingLiU", serif;
     background: white;
     width: 1200px;
-    height: 800px;
+    height: 640px;
     box-sizing: border-box;
   }
   .figure { display: flex; flex-direction: column; align-items: center; height: 100%; }
-  .title { font-size: 22px; font-weight: bold; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #555; margin-bottom: 20px; }
   .chart-container { width: 1100px; height: 580px; position: relative; }
-  .footnote { margin-top: 16px; font-size: 13px; color: #444; line-height: 1.6; max-width: 1100px; }
   .highlight { color: #c00; font-weight: bold; }
 </style>
 </head>
 <body>
 <div class="figure">
-  <div class="title">圖 5-4　兩組學生對教學介面之主觀回饋比較</div>
-  <div class="subtitle">Section 3 平台回饋量表（Likert 1–5，1 = 非常不同意，5 = 非常同意）</div>
   <div class="chart-container">
     <canvas id="chart"></canvas>
   </div>
-  <div class="footnote">
-    註：實驗組 A（RL Lab，n=18）vs 對照組 B（Colab，n=12）。
-    <span class="highlight">3-4「課後想繼續學 RL」差距最大（+0.90，p=0.089 趨近顯著）</span>。
-    3-2 參數信心、3-3 視覺化幫助與 3-4 學習動機三項皆為 RL Lab 設計訴求面向，方向一致顯示實驗組勝出；
-    3-1 介面易用與 3-5 推薦意願則對照組略勝（Colab 為熟悉工具，學生上手成本低）。
   </div>
-</div>
 
 <script>
 const s = window.DATA.section3;
@@ -47,7 +36,7 @@ new Chart(document.getElementById('chart'), {
     labels: s.items,
     datasets: [
       {
-        label: '實驗組 A（RL Lab）',
+        label: 'RR 組（A）',
         data: s.A.map(v => +v.toFixed(2)),
         backgroundColor: 'rgba(46, 134, 222, 0.85)',
         borderColor: 'rgba(46, 134, 222, 1)',
@@ -55,7 +44,7 @@ new Chart(document.getElementById('chart'), {
         borderRadius: 4,
       },
       {
-        label: '對照組 B（Colab）',
+        label: 'Colab 組（B）',
         data: s.B.map(v => +v.toFixed(2)),
         backgroundColor: 'rgba(255, 159, 67, 0.85)',
         borderColor: 'rgba(255, 159, 67, 1)',
