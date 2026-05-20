@@ -24,6 +24,27 @@ from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from lxml import etree
+import latex2mathml.converter
+
+# ── LaTeX → OMML 轉換（使用 Word 自帶 MML2OMML.XSL） ──────────────────────
+MML2OMML_XSL = Path(r'C:\Program Files\Microsoft Office\root\Office16\MML2OMML.XSL')
+_xslt = etree.XSLT(etree.parse(str(MML2OMML_XSL))) if MML2OMML_XSL.exists() else None
+OMML_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/math'
+
+def latex_to_omml(tex, display=False):
+    """LaTeX 字串 → OMML <m:oMath> Element；轉換失敗時回傳 None。"""
+    if _xslt is None:
+        return None
+    try:
+        mathml = latex2mathml.converter.convert(tex, display='block' if display else 'inline')
+        omml_tree = _xslt(etree.fromstring(mathml.encode('utf-8')))
+        # XSLT 輸出根節點為 m:oMath
+        omml_xml = etree.tostring(omml_tree, xml_declaration=False)
+        return etree.fromstring(omml_xml)
+    except Exception as e:
+        print(f'  ⚠  LaTeX 轉換失敗: {tex[:50]}... ({e})')
+        return None
 
 BASE    = Path(__file__).parent
 MD_DIR  = BASE / "md"
@@ -119,6 +140,8 @@ RE_SUBSEC     = re.compile(r'^\d+\.\d+\.\d+')   # X.X.X
 RE_SEC        = re.compile(r'^\d+\.\d+\s')       # X.X<空格>
 RE_CHAPTER_NO = re.compile(r'^第[一二三四五六七八九十百]+章')
 RE_CN_SUB     = re.compile(r'^[一二三四五六七八九十]+[、．]')
+RE_CN_PAREN   = re.compile(r'^[（(][一二三四五六七八九十]+[）)]')   # （一）/（二）...
+RE_NUM_SUB    = re.compile(r'^\d+[、．]')                              # 1、/2、...
 RE_LIST       = re.compile(r'^[-*+]\s+(.*)')
 RE_TABLE_ROW  = re.compile(r'^\|')
 RE_TABLE_SEP  = re.compile(r'^\|[\s\-:]+\|')
@@ -156,27 +179,49 @@ class FigureRegistry:
 
 
 class TableRegistry:
-    """蒐集所有表標籤並依出現順序給予全文連續編號（同 FigureRegistry）。"""
+    """每個 tablecaption 出現一次就給一個唯一序號（避免不同檔重用 表 X-Y 而被合併）。
+    文字內參照（如「見表 5-6」）採用 first-seen mapping，沿用第一次出現的序號。
+    """
     def __init__(self):
-        self.mapping = {}
+        self.sequence = []          # 依出現順序：每筆 (key, number)
+        self.first_seen = {}        # key → 首次出現序號（供文字參照轉換）
+        self._render_cursor = 0
 
     def register(self, caption_text):
         m = RE_TABLE_KEY.search(caption_text)
         if not m:
             return
         key = (m.group(1), m.group(2), m.group(3))
-        if key not in self.mapping:
-            self.mapping[key] = len(self.mapping) + 1
+        n = len(self.sequence) + 1
+        self.sequence.append((key, n))
+        self.first_seen.setdefault(key, n)
+
+    def render_caption_number(self, caption_text):
+        """渲染期 — 為當前 tablecaption 取出對應序號（按事件順序消耗 sequence）。"""
+        m = RE_TABLE_KEY.search(caption_text)
+        if not m:
+            return caption_text
+        if self._render_cursor >= len(self.sequence):
+            return caption_text
+        _, n = self.sequence[self._render_cursor]
+        self._render_cursor += 1
+        return RE_TABLE_KEY.sub(lambda _: f'表 {n}', caption_text, count=1)
 
     def convert(self, text):
+        """文字參照 → first-seen 序號。"""
         if not text:
             return text
         def repl(m):
             key = (m.group(1), m.group(2), m.group(3))
-            if key in self.mapping:
-                return f'表 {self.mapping[key]}'
+            if key in self.first_seen:
+                return f'表 {self.first_seen[key]}'
             return m.group(0)
         return RE_TABLE_KEY.sub(repl, text)
+
+    @property
+    def mapping(self):
+        """供 build() 摘要報告使用。"""
+        return {k: v for k, v in self.sequence}
 
 
 def normalize_caption_punct(text):
@@ -185,9 +230,9 @@ def normalize_caption_punct(text):
     """
     if not text:
         return text
-    # 「圖 N」或「表 N」 後若接 半形空格/冒號/全形冒號 + 標題文字 → 替換成全形空格
-    text = re.sub(r'(圖\s*\d+[a-z]?)[\s::]+(?=\S)', r'\1　', text)
-    text = re.sub(r'(表\s*\d+[a-z]?)[\s::]+(?=\S)', r'\1　', text)
+    # 「圖 N」或「表 N」 後若接 半形空格/全形空格/半形冒號/全形冒號 + 標題文字 → 替換成單一全形空格
+    text = re.sub(r'(圖\s*\d+[a-z]?)[\s::　]+(?=\S)', r'\1　', text)
+    text = re.sub(r'(表\s*\d+[a-z]?)[\s::　]+(?=\S)', r'\1　', text)
     return text
 
 # ── 字型 / 段落格式函數 ──────────────────────────────────────────────────
@@ -231,36 +276,105 @@ def set_first_line_indent_chars(para, chars):
     ind.set(qn('w:firstLine'), str(int(14 * chars * 20)))
     pPr.append(ind)
 
+def _add_field(run, instr_text):
+    """在 run 內加入一個 Word field（如 PAGE / TOC）。"""
+    fld_begin = OxmlElement('w:fldChar')
+    fld_begin.set(qn('w:fldCharType'), 'begin')
+    instr = OxmlElement('w:instrText')
+    instr.set(qn('xml:space'), 'preserve')
+    instr.text = instr_text
+    fld_sep = OxmlElement('w:fldChar')
+    fld_sep.set(qn('w:fldCharType'), 'separate')
+    fld_end = OxmlElement('w:fldChar')
+    fld_end.set(qn('w:fldCharType'), 'end')
+    run._r.append(fld_begin)
+    run._r.append(instr)
+    run._r.append(fld_sep)
+    run._r.append(fld_end)
+
 def add_page_number_field(footer_para):
     """在 footer 段落加入 PAGE field（顯示當前頁碼）。"""
     footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = footer_para.add_run()
     set_font(run, 12)
-    fld_begin = OxmlElement('w:fldChar')
-    fld_begin.set(qn('w:fldCharType'), 'begin')
-    instr = OxmlElement('w:instrText')
-    instr.set(qn('xml:space'), 'preserve')
-    instr.text = 'PAGE'
-    fld_end = OxmlElement('w:fldChar')
-    fld_end.set(qn('w:fldCharType'), 'end')
-    run._r.append(fld_begin)
-    run._r.append(instr)
-    run._r.append(fld_end)
+    _add_field(run, 'PAGE')
+
+def set_section_page_format(section, fmt='decimal', start=1):
+    """設定 section 的頁碼格式：'decimal'（1,2,3）或 'upperRoman'（I,II,III）。"""
+    sectPr = section._sectPr
+    for old in sectPr.findall(qn('w:pgNumType')):
+        sectPr.remove(old)
+    pg = OxmlElement('w:pgNumType')
+    pg.set(qn('w:fmt'), fmt)
+    pg.set(qn('w:start'), str(start))
+    sectPr.append(pg)
+
+def add_section_break(doc, page_fmt='decimal', start=1):
+    """在文件尾插入 section break (next page) 並設定頁碼格式。"""
+    p = doc.add_paragraph()
+    pPr = p._p.get_or_add_pPr()
+    sectPr = OxmlElement('w:sectPr')
+    # 沿用上一段邊距
+    last_sect = doc.sections[-1]._sectPr
+    for tag in ('w:pgSz', 'w:pgMar', 'w:cols', 'w:docGrid'):
+        elem = last_sect.find(qn(tag))
+        if elem is not None:
+            from copy import deepcopy
+            sectPr.append(deepcopy(elem))
+    pg_type = OxmlElement('w:type')
+    pg_type.set(qn('w:val'), 'nextPage')
+    sectPr.insert(0, pg_type)
+    pg = OxmlElement('w:pgNumType')
+    pg.set(qn('w:fmt'), page_fmt)
+    pg.set(qn('w:start'), str(start))
+    sectPr.append(pg)
+    pPr.append(sectPr)
+
+RE_INLINE_MATH = re.compile(r'\$([^$\n]+?)\$')
 
 def add_runs(para, text, size_pt, default_bold=False):
-    """拆解 **bold** 標記，加入 runs。"""
+    """拆解 **bold** 與 $inline_math$ 標記，加入 runs / OMML。"""
+    # 先按 bold 切，再對每個非 bold 段切 inline math
     parts = re.split(r'\*\*(.+?)\*\*', text)
     for i, part in enumerate(parts):
         if not part:
             continue
-        run = para.add_run(part)
-        set_font(run, size_pt, bold=default_bold or (i % 2 == 1))
+        is_bold = default_bold or (i % 2 == 1)
+        if is_bold:
+            # bold 段內也可能有 math，但暫不處理（罕見）
+            run = para.add_run(part)
+            set_font(run, size_pt, bold=True)
+            continue
+        # 切 inline math
+        last_end = 0
+        for m in RE_INLINE_MATH.finditer(part):
+            if m.start() > last_end:
+                run = para.add_run(part[last_end:m.start()])
+                set_font(run, size_pt, bold=False)
+            omml = latex_to_omml(m.group(1), display=False)
+            if omml is not None:
+                para._p.append(omml)
+            else:
+                run = para.add_run(m.group(0))
+                set_font(run, size_pt, bold=False)
+            last_end = m.end()
+        if last_end < len(part):
+            run = para.add_run(part[last_end:])
+            set_font(run, size_pt, bold=False)
 
 # ── 段落類型函數 ─────────────────────────────────────────────────────────
+
+def _apply_heading_style(para, level):
+    """套用內建 Heading 樣式（讓 TOC field 能抓到）。"""
+    try:
+        para.style = f'Heading {level}'
+    except KeyError:
+        pass
 
 def add_chapter_title(doc, title):
     """章名：標楷體 20pt 置中 1.2x 前後留雙倍行距。"""
     p = doc.add_paragraph()
+    _apply_heading_style(p, 1)
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     set_spacing(p, 1.2, before_pt=28, after_pt=28)
     run = p.add_run(title)
@@ -269,6 +383,7 @@ def add_chapter_title(doc, title):
 def add_section(doc, text):
     """X.X 節名：16pt 靠左。"""
     p = doc.add_paragraph()
+    _apply_heading_style(p, 2)
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     set_spacing(p, 1.2, before_pt=14, after_pt=0)
     run = p.add_run(text)
@@ -277,6 +392,7 @@ def add_section(doc, text):
 def add_subsection(doc, text):
     """X.X.X 節名：14pt 靠左。"""
     p = doc.add_paragraph()
+    _apply_heading_style(p, 3)
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     set_spacing(p, 1.2, before_pt=10, after_pt=0)
     run = p.add_run(text)
@@ -298,11 +414,37 @@ def add_body(doc, text):
     set_first_line_indent_chars(p, BODY_FIRST_LINE_INDENT_CHARS)
     add_runs(p, text, 14)
 
-def add_list_item(doc, text):
-    """清單項目：• 開頭，14pt。"""
+def add_body_15x(doc, text):
+    """1.5 倍行距正文（摘要 / 誌謝 / 參考文獻使用）。"""
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    set_spacing(p, 1.2)
+    set_spacing(p, 1.5)
+    set_first_line_indent_chars(p, BODY_FIRST_LINE_INDENT_CHARS)
+    add_runs(p, text, 14)
+
+def add_toc_field(doc, title, switches):
+    """加入 TOC field（Word 開檔時按 F9 即可生成）。
+    switches 範例：'\\o "1-3" \\h \\z \\u'（目錄）、'\\c "圖"'（圖目錄）、'\\c "表"'（表目錄）
+    """
+    add_chapter_title(doc, title)
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    set_spacing(p, 1.5)
+    run = p.add_run()
+    set_font(run, 14)
+    _add_field(run, f'TOC {switches}')
+    # 提示文字（field 渲染前會先顯示）
+    hint = doc.add_paragraph()
+    hint.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    set_spacing(hint, 1.2)
+    hr = hint.add_run('（請於 Word 中按 F9 更新目錄）')
+    set_font(hr, 10)
+
+def add_list_item(doc, text, line_mult=1.2):
+    """清單項目：• 開頭，14pt；可指定行距（參考文獻章用 1.5x）。"""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    set_spacing(p, line_mult)
     run = p.add_run('• ')
     set_font(run, 14)
     add_runs(p, text, 14)
@@ -331,6 +473,21 @@ def add_table_caption(doc, text):
     set_spacing(p, 1.2, before_pt=8, after_pt=4)
     run = p.add_run(text)
     set_font(run, 12, bold=True)
+
+def add_block_math(doc, tex):
+    """LaTeX block 方程 → 獨立段落，OMML 置中顯示。
+    display=True 時 XSL 會直接輸出 <m:oMathPara><m:oMath>...</m:oMath></m:oMathPara>，
+    直接 append 即可，不可再額外包一層 oMathPara（會造成 Word 拒絕渲染）。
+    """
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    set_spacing(p, 1.2, before_pt=4, after_pt=4)
+    omml = latex_to_omml(tex, display=True)
+    if omml is None:
+        run = p.add_run(f'$${tex}$$')
+        set_font(run, 14)
+        return
+    p._p.append(omml)
 
 def add_image(doc, img_path, width_cm=14):
     """插入圖片，置中。"""
@@ -398,43 +555,48 @@ def normalize(text):
     return text.replace('**', '').strip()
 
 def classify_bold_line(content):
-    """判斷純 bold 行的段落類型。"""
+    """判斷純 bold 行的段落類型（圖說 / 表說 / 中文層次）。
+    md 規範已要求節 / 子節用 ##/### heading；此處只處理圖表標題與「一、」層次。
+    """
     if RE_FIG_CAP.match(content):
         return 'figcaption'
     if RE_TABLE_CAP.match(content):
         return 'tablecaption'
-    if RE_CHAPTER_NO.match(content):
-        return 'chapter'
-    if RE_SUBSEC.match(content):
-        return 'subsection'
-    if RE_SEC.match(content):
-        return 'section'
-    if RE_CN_SUB.match(content):
-        return 'subhead'
-    # 短純粗體行（無標點在中間）→ 當作 subhead
-    if len(content) < 30 and '，' not in content and '。' not in content:
+    if RE_CN_SUB.match(content) or RE_CN_PAREN.match(content) or RE_NUM_SUB.match(content):
         return 'subhead'
     return 'body'
 
 def parse_md(filepath, chapter_title):
     """逐行解析 md，yield (kind, content)。
 
-    去重：若 ![圖 X-Y](path) 後緊接著 **圖 X-Y　...** 的 bold figcaption，
-    視為同一張圖的重複標註（既有 md 的混用慣例），跳過第二次。
+    md 規範（docs/md_writing_spec.md）要求：
+      - 節用 `## X.X 標題`、子節用 `### X.X.X 標題`
+      - 圖片用 `![圖 X-Y　標題](路徑)`，標題不重複貼一次 bold
+      - 表格上方用 `**表 X-Y　標題**`
     """
     lines = filepath.read_text(encoding='utf-8').splitlines()
     i = 0
-    last_md_img_key = None  # 上一個 md_image 的圖編號 (ch, num, letter)，遇任何非空非 figcaption 內容即清除
+    last_md_img_key = None  # 上一個 md_image 的圖編號 (ch, num, letter)；遇非空非 figcaption 內容即清除
     while i < len(lines):
         line = lines[i]
         i += 1
         stripped = line.strip()
 
-        # 空行、分隔線：不清除 last_md_img_key（允許段落間有空白行）
         if not stripped or RE_HR.match(stripped):
+            continue  # 空行/分隔線：保留 last_md_img_key 以容許段落間空行
+
+        # LaTeX block math: $$ ... $$
+        if stripped == '$$':
+            tex_lines = []
+            while i < len(lines) and lines[i].strip() != '$$':
+                tex_lines.append(lines[i])
+                i += 1
+            i += 1  # skip closing $$
+            last_md_img_key = None
+            yield ('block_math', '\n'.join(tex_lines).strip())
             continue
 
-        # 圖描述 （圖 X-X ...） → 跳過（不出現在論文）
+        # 舊式圖描述 （圖 X-X ...） → 跳過
         if RE_FIG_DESC.match(stripped):
             continue
 
@@ -442,10 +604,9 @@ def parse_md(filepath, chapter_title):
         m = RE_MD_IMAGE.match(stripped)
         if m:
             caption = m.group(1).strip()
-            path    = m.group(2).strip()
             mk = RE_FIG_KEY.search(caption)
             last_md_img_key = (mk.group(1), mk.group(2), mk.group(3)) if mk else None
-            yield ('md_image', (caption, path))
+            yield ('md_image', (caption, m.group(2).strip()))
             continue
 
         # 表格
@@ -458,29 +619,26 @@ def parse_md(filepath, chapter_title):
             yield ('table', rows)
             continue
 
-        # Markdown heading (#, ##, ###, ####)
+        # Markdown heading
         m = RE_HEADING.match(line)
         if m:
             content = normalize(m.group(2))
             if not content:
                 continue
-            # 跳過與章名相同的行
             if content.replace('　', ' ') == chapter_title.replace('　', ' '):
                 continue
             last_md_img_key = None
-            if RE_CHAPTER_NO.match(content):
-                yield ('chapter_skip', content)
-            elif RE_SUBSEC.match(content):
+            if RE_SUBSEC.match(content):
                 yield ('subsection', content)
             elif RE_SEC.match(content):
                 yield ('section', content)
-            elif RE_CN_SUB.match(content):
+            elif RE_CN_SUB.match(content) or RE_CN_PAREN.match(content) or RE_NUM_SUB.match(content):
                 yield ('subhead', content)
             else:
                 yield ('section', content)
             continue
 
-        # 純 **bold** 行
+        # 純 **bold** 行（圖說 / 表說 / 一、層次）
         m = RE_BOLD_ONLY.match(stripped)
         if m:
             content = m.group(1).strip()
@@ -492,12 +650,7 @@ def parse_md(filepath, chapter_title):
                     last_md_img_key = None
                     continue
             last_md_img_key = None
-            if kind == 'chapter':
-                if content.replace('　', ' ') == chapter_title.replace('　', ' '):
-                    continue
-                yield ('chapter_skip', content)
-            else:
-                yield (kind, content)
+            yield (kind, content)
             continue
 
         # 清單
@@ -547,6 +700,50 @@ def build_table_registry(events):
             reg.register(content)
     return reg
 
+def add_front_matter(doc):
+    """加入前置部分（封面 / 書名頁 / 審定書 / 摘要 / 誌謝 / 目錄 / 圖目錄 / 表目錄）。
+    各 placeholder 之內容於後續手動補入；摘要與誌謝直接讀 md/。
+    """
+    # 封面（佔位）
+    add_chapter_title(doc, '【封面：請依元智規範手動製作或由系所提供範本】')
+    add_page_break(doc)
+
+    # 書名頁
+    add_chapter_title(doc, '【書名頁：中英文題目 + 研究生 / 指導教授姓名】')
+    add_page_break(doc)
+
+    # 審定書
+    add_chapter_title(doc, '【論文口試委員審定書：口試後由系所提供】')
+    add_page_break(doc)
+
+    # 中文摘要
+    md_path = MD_DIR / '摘要.md'
+    if md_path.exists():
+        for kind, content in parse_md(md_path, '中文摘要'):
+            if kind == 'section':
+                add_section(doc, content)
+            elif kind == 'body':
+                add_body_15x(doc, content)
+    add_page_break(doc)
+
+    # 誌謝
+    md_path = MD_DIR / '誌謝.md'
+    if md_path.exists():
+        for kind, content in parse_md(md_path, '誌謝'):
+            if kind == 'section':
+                add_section(doc, content)
+            elif kind == 'body':
+                add_body_15x(doc, content)
+    add_page_break(doc)
+
+    # 目錄 / 表目錄 / 圖目錄（依規範 R-G-A9_目錄中 順序；於 Word 按 F9 更新）
+    add_toc_field(doc, '目錄',   '\\o "1-3" \\h \\z \\u')
+    add_page_break(doc)
+    add_toc_field(doc, '表目錄', '\\h \\z \\c "表"')
+    add_page_break(doc)
+    add_toc_field(doc, '圖目錄', '\\h \\z \\c "圖"')
+
+
 def build():
     doc = Document()
 
@@ -560,7 +757,7 @@ def build():
         sec.right_margin    = Cm(2.0)
         sec.footer_distance = Cm(1.0)    # 規範：版面底端 1cm 處中央繕打頁次
 
-    # footer 中央阿拉伯數字頁碼
+    # footer 中央頁碼
     if ADD_PAGE_NUMBER:
         for sec in doc.sections:
             footer_para = sec.footer.paragraphs[0]
@@ -572,6 +769,21 @@ def build():
     normal.paragraph_format.space_after  = Pt(0)
     normal.paragraph_format.space_before = Pt(0)
 
+    # 強制 Word 開檔時自動更新所有 field（含 TOC / PAGE）
+    settings = doc.settings.element
+    update_fields = settings.find(qn('w:updateFields'))
+    if update_fields is None:
+        update_fields = OxmlElement('w:updateFields')
+        settings.append(update_fields)
+    update_fields.set(qn('w:val'), 'true')
+
+    # 前置部分（小寫羅馬數字 i, ii, iii...）
+    # OOXML 行為：inline sectPr（add_section_break 插入的）控制其【之前】的內容；
+    # 文件尾的 sectPr（doc.sections[0]）控制其【之後】（即正文）。
+    add_front_matter(doc)
+    add_section_break(doc, page_fmt='lowerRoman', start=1)        # 前置 → 小寫羅馬
+    set_section_page_format(doc.sections[0], fmt='decimal', start=1)  # 正文 → 阿拉伯數字
+
     # Pass 1: 收集事件
     events = collect_events()
 
@@ -582,6 +794,7 @@ def build():
     # Pass 3: 渲染 docx
     first_chapter = True
     missing_images = []
+    use_15x_spacing = False  # 參考文獻章用 1.5x
 
     def maybe_convert_refs(text):
         """文內若有圖/表參照，依登記表替換；並統一 caption 標點。"""
@@ -600,6 +813,7 @@ def build():
             if not first_chapter:
                 add_page_break(doc)
             first_chapter = False
+            use_15x_spacing = (chapter_title == '參考文獻')
             print(f'\n▶ {chapter_title}')
             add_chapter_title(doc, chapter_title)
         elif kind == '__missing_file__':
@@ -636,18 +850,30 @@ def build():
                 missing_images.append(caption)
             add_fig_caption(doc, display)
         elif kind == 'tablecaption':
-            display = maybe_convert_refs(content)
+            # caption 自己用渲染序號（避免 first-seen 把後續同名表壓回第一張）
+            if table_registry is not None:
+                display = table_registry.render_caption_number(content)
+            else:
+                display = content
+            if NORMALIZE_CAPTION_PUNCT:
+                display = normalize_caption_punct(display)
             add_table_caption(doc, display)
         elif kind == 'list':
-            add_list_item(doc, maybe_convert_refs(content))
+            add_list_item(doc, maybe_convert_refs(content), line_mult=1.5 if use_15x_spacing else 1.2)
         elif kind == 'table':
             add_table(doc, content, fig_registry, table_registry)
+        elif kind == 'block_math':
+            add_block_math(doc, content)
         elif kind == 'body':
             if content:
-                add_body(doc, maybe_convert_refs(content))
+                if use_15x_spacing:
+                    add_body_15x(doc, maybe_convert_refs(content))
+                else:
+                    add_body(doc, maybe_convert_refs(content))
 
     doc.save(str(OUTPUT))
     print(f'\n✅ 輸出：{OUTPUT}')
+    print(f'   ※ 開檔時 Word 會跳出「是否更新欄位」對話框 → 點「是」即可填入目錄與頁碼')
 
     # 摘要報告
     if fig_registry is not None and fig_registry.mapping:
