@@ -1,0 +1,4 @@
+/* 永久隱藏 Slidev 的「Go to slide」對話框（按 g 觸發，會卡住關不掉） */
+#slidev-goto-dialog {
+  display: none !important;
+}

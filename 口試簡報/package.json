@@ -1,0 +1,23 @@
+{
+  "name": "thesis-defense-slides",
+  "private": true,
+  "version": "1.0.0",
+  "description": "口試簡報 — Rein Room 強化教室 (2026/6/10)",
+  "scripts": {
+    "prepare-images": "node prepare.mjs",
+    "predev": "node prepare.mjs",
+    "prebuild": "node prepare.mjs",
+    "preexport": "node prepare.mjs",
+    "dev": "slidev --open",
+    "build": "slidev build",
+    "export": "slidev export",
+    "export:pdf": "slidev export --output 口試簡報.pdf --format pdf"
+  },
+  "dependencies": {
+    "@slidev/cli": "^0.49.29",
+    "@slidev/theme-default": "^0.25.0",
+    "@slidev/theme-seriph": "^0.25.0",
+    "playwright-chromium": "^1.50.0",
+    "vue": "^3.5.13"
+  }
+}

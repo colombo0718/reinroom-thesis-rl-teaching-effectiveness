@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.slidev/
+public/images/
+_shots/
+dev.log
+dev.err.log
