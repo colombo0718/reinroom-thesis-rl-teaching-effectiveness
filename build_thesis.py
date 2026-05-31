@@ -27,6 +27,27 @@ from docx.oxml import OxmlElement
 from lxml import etree
 import latex2mathml.converter
 
+# ── 論文 metadata（封面 / 書名頁 / 審定書填入） ────────────────────────────
+THESIS_META = {
+    'title_zh': 'Rein Room 強化教室：視覺化互動強化學習教學平台之設計與教學成效評估',
+    'title_en': 'Design and Evaluation of Rein Room: A Visual Interactive Platform for Reinforcement Learning Education',
+    'student_zh': '趙士豪',
+    'student_en': 'Shih-Hao Chao',
+    'student_id': 'S1136103',
+    'advisor_zh': '黃怡錚',
+    'advisor_en': 'Yi-Jheng Huang',                     # 已確認（系所網頁）
+    'dept_zh': '資訊工程學系',
+    'dept_en': 'Computer Science and Engineering',
+    'college_en': 'College of Informatics',             # 已確認（系所網頁職稱為「資訊學院英語學士班主任」）
+    'degree_zh': '碩士',
+    'degree_en': 'Master of Science',
+    'year_roc': '一一五',                                # 民國年
+    'month_zh': '六',
+    'year_ad': '2026',
+    'month_en': 'June',
+    'location_en': 'Chungli, Taiwan, Republic of China',
+}
+
 # ── LaTeX → OMML 轉換（使用 Word 自帶 MML2OMML.XSL） ──────────────────────
 MML2OMML_XSL = Path(r'C:\Program Files\Microsoft Office\root\Office16\MML2OMML.XSL')
 _xslt = etree.XSLT(etree.parse(str(MML2OMML_XSL))) if MML2OMML_XSL.exists() else None
@@ -700,21 +721,113 @@ def build_table_registry(events):
             reg.register(content)
     return reg
 
+def _add_centered_line(doc, text, size_pt=14, bold=False, before_pt=0, after_pt=0, line_mult=1.5):
+    """前置頁專用：置中段落，可控字級 / 粗體 / 段距。"""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    set_spacing(p, line_mult, before_pt=before_pt, after_pt=after_pt)
+    run = p.add_run(text)
+    set_font(run, size_pt, bold=bold)
+    return p
+
+def add_cover_page(doc):
+    """元智格式 A 附件一 封面（R-G-A1）。"""
+    M = THESIS_META
+    # 上方留白
+    _add_centered_line(doc, '', 14, before_pt=60)
+    _add_centered_line(doc, '元　智　大　學', 24, bold=True, after_pt=24)
+    _add_centered_line(doc, M['dept_zh'], 22, bold=True, after_pt=24)
+    _add_centered_line(doc, f"{M['degree_zh']}　論　文", 22, bold=True, after_pt=60)
+    _add_centered_line(doc, M['title_zh'], 20, bold=True, after_pt=80)
+    _add_centered_line(doc, f"研  究  生：{M['student_zh']}", 16, after_pt=12)
+    _add_centered_line(doc, f"指 導 教 授：{M['advisor_zh']}　博士", 16, after_pt=80)
+    _add_centered_line(doc, f"中 華 民 國 　{M['year_roc']}　年　{M['month_zh']}　月", 16)
+    add_page_break(doc)
+
+def add_title_page(doc):
+    """元智格式 A 附件二 書名頁（R-G-A2）。"""
+    M = THESIS_META
+    _add_centered_line(doc, '', 14, before_pt=40)
+    _add_centered_line(doc, M['title_zh'], 18, bold=True, after_pt=12)
+    _add_centered_line(doc, M['title_en'].upper(), 14, bold=True, after_pt=40)
+
+    # 研究生 / 指導教授（中英對照）
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    set_spacing(p, 1.5, after_pt=6)
+    r1 = p.add_run(f"研  究  生：{M['student_zh']}")
+    set_font(r1, 14)
+    r2 = p.add_run(f"      Student：{M['student_en']}")
+    set_font(r2, 14)
+
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    set_spacing(p, 1.5, after_pt=40)
+    r1 = p.add_run(f"指 導 教 授：{M['advisor_zh']}")
+    set_font(r1, 14)
+    r2 = p.add_run(f"      Advisor：{M['advisor_en']}")
+    set_font(r2, 14)
+
+    _add_centered_line(doc, '元  智  大  學', 16, bold=True, after_pt=8)
+    _add_centered_line(doc, M['dept_zh'], 16, bold=True, after_pt=8)
+    _add_centered_line(doc, f"{M['degree_zh']}  論  文", 16, bold=True, after_pt=40)
+
+    _add_centered_line(doc, 'A Thesis', 14, after_pt=4)
+    _add_centered_line(doc, f"Submitted to Department of {M['dept_en']}", 14, after_pt=4)
+    _add_centered_line(doc, M['college_en'], 14, after_pt=4)
+    _add_centered_line(doc, 'Yuan Ze University', 14, after_pt=4)
+    _add_centered_line(doc, 'in Partial Fulfillment of the Requirements', 14, after_pt=4)
+    _add_centered_line(doc, 'for the Degree of', 14, after_pt=4)
+    _add_centered_line(doc, M['degree_en'], 14, after_pt=4)
+    _add_centered_line(doc, 'in', 14, after_pt=4)
+    _add_centered_line(doc, M['dept_en'], 14, after_pt=20)
+
+    _add_centered_line(doc, f"{M['month_en']} {M['year_ad']}", 14, after_pt=8)
+    _add_centered_line(doc, M['location_en'], 14, after_pt=20)
+    _add_centered_line(doc, f"中華民國　{M['year_roc']}　年　{M['month_zh']}　月", 14)
+    add_page_break(doc)
+
+def add_verification_page(doc):
+    """元智格式 A 附件三 論文口試委員審定書（R-G-A3）。
+    口試後委員簽名版才能附正本；此處先放正式格式的空白表，方便列印簽署。
+    """
+    M = THESIS_META
+    _add_centered_line(doc, '元智大學碩士班研究生', 18, bold=True, after_pt=6)
+    _add_centered_line(doc, '論文口試委員審定書', 18, bold=True, after_pt=12)
+    _add_centered_line(doc, 'YZU Master Program', 14, after_pt=2)
+    _add_centered_line(doc, 'Verification Letter from the Oral Examination Committee', 14, after_pt=30)
+
+    # 學年期
+    _add_centered_line(doc, '第　一一四　學年度第　二　學期', 14, after_pt=24)
+    _add_centered_line(doc, f"{M['dept_zh']}　{M['student_zh']}　君，學號 {M['student_id']}", 14, after_pt=12)
+    _add_centered_line(doc, '所提之論文', 14, after_pt=12)
+    _add_centered_line(doc, M['title_zh'], 14, bold=True, after_pt=24)
+    _add_centered_line(doc, f"經本委員會審議，認為符合 {M['degree_zh']} 資格標準。", 14, after_pt=36)
+
+    _add_centered_line(doc, f"Department of {M['dept_en']}", 14, after_pt=4)
+    _add_centered_line(doc, f"Name: {M['student_en']}     Student No.: {M['student_id']}", 14, after_pt=4)
+    _add_centered_line(doc, f"Thesis: {M['title_en']}", 14, after_pt=12)
+    _add_centered_line(doc, "Fulfill the Master's Degree's Requirement; reviewed and verified by this committee.", 14, after_pt=36)
+
+    # 簽名欄（靠左）
+    for label in ['口試委員 Oral Examination Committee Members：', '指 導 教 授 Advisor：', '系  主  任 Head of Dept.：']:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        set_spacing(p, 2.0, after_pt=20)
+        run = p.add_run(label)
+        set_font(run, 14)
+
+    _add_centered_line(doc, f"中華民國　{M['year_roc']}　年(Year)　{M['month_zh']}　月(Month)　　　日(Date)", 14, before_pt=20)
+    add_page_break(doc)
+
+
 def add_front_matter(doc):
     """加入前置部分（封面 / 書名頁 / 審定書 / 摘要 / 誌謝 / 目錄 / 圖目錄 / 表目錄）。
-    各 placeholder 之內容於後續手動補入；摘要與誌謝直接讀 md/。
+    封面/書名頁/審定書依元智格式 A 附件一/二/三填入；摘要與誌謝讀 md/。
     """
-    # 封面（佔位）
-    add_chapter_title(doc, '【封面：請依元智規範手動製作或由系所提供範本】')
-    add_page_break(doc)
-
-    # 書名頁
-    add_chapter_title(doc, '【書名頁：中英文題目 + 研究生 / 指導教授姓名】')
-    add_page_break(doc)
-
-    # 審定書
-    add_chapter_title(doc, '【論文口試委員審定書：口試後由系所提供】')
-    add_page_break(doc)
+    add_cover_page(doc)
+    add_title_page(doc)
+    add_verification_page(doc)
 
     # 中文摘要
     md_path = MD_DIR / '摘要.md'
