@@ -154,6 +154,7 @@ CHAPTERS = [
 
 # ── 正則式 ───────────────────────────────────────────────────────────────
 RE_HEADING    = re.compile(r'^(#{1,4})\s+(.*)')
+RE_BLOCKQUOTE = re.compile(r'^>\s?(.*)$')
 RE_BOLD_ONLY  = re.compile(r'^\*\*(.+?)\*\*\s*$')
 RE_FIG_CAP    = re.compile(r'^圖\s*\d+[-−–]\d+')
 RE_FIG_DESC   = re.compile(r'^[（(]圖\s*\d+')
@@ -353,8 +354,18 @@ def add_section_break(doc, page_fmt='decimal', start=1):
 
 RE_INLINE_MATH = re.compile(r'\$([^$\n]+?)\$')
 
+_STAR_TOKEN = '★'  # 罕見 unicode，用來暫代 markdown 內的 \* escape
+
+def _restore_md_escapes(s):
+    """把 add_runs 開頭塞進去的 token 還原成字面 *。"""
+    return s.replace(_STAR_TOKEN, '*')
+
 def add_runs(para, text, size_pt, default_bold=False):
-    """拆解 **bold** 與 $inline_math$ 標記，加入 runs / OMML。"""
+    """拆解 **bold** 與 $inline_math$ 標記，加入 runs / OMML。
+    處理 markdown escape：`\\*` 表示字面 *，需先以 token 暫代避免被 ** bold 邏輯誤切。
+    """
+    # 預處理：md escape `\*` → token，等切完 bold/math 後再還原成 *
+    text = text.replace(r'\*', _STAR_TOKEN)
     # 先按 bold 切，再對每個非 bold 段切 inline math
     parts = re.split(r'\*\*(.+?)\*\*', text)
     for i, part in enumerate(parts):
@@ -363,24 +374,24 @@ def add_runs(para, text, size_pt, default_bold=False):
         is_bold = default_bold or (i % 2 == 1)
         if is_bold:
             # bold 段內也可能有 math，但暫不處理（罕見）
-            run = para.add_run(part)
+            run = para.add_run(_restore_md_escapes(part))
             set_font(run, size_pt, bold=True)
             continue
         # 切 inline math
         last_end = 0
         for m in RE_INLINE_MATH.finditer(part):
             if m.start() > last_end:
-                run = para.add_run(part[last_end:m.start()])
+                run = para.add_run(_restore_md_escapes(part[last_end:m.start()]))
                 set_font(run, size_pt, bold=False)
             omml = latex_to_omml(m.group(1), display=False)
             if omml is not None:
                 para._p.append(omml)
             else:
-                run = para.add_run(m.group(0))
+                run = para.add_run(_restore_md_escapes(m.group(0)))
                 set_font(run, size_pt, bold=False)
             last_end = m.end()
         if last_end < len(part):
-            run = para.add_run(part[last_end:])
+            run = para.add_run(_restore_md_escapes(part[last_end:]))
             set_font(run, size_pt, bold=False)
 
 # ── 段落類型函數 ─────────────────────────────────────────────────────────
@@ -460,6 +471,23 @@ def add_toc_field(doc, title, switches):
     set_spacing(hint, 1.2)
     hr = hint.add_run('（請於 Word 中按 F9 更新目錄）')
     set_font(hr, 10)
+
+def add_quote(doc, text):
+    """引言段落（markdown `> ...`）：左縮排、無首行縮排，視覺上區分於正文。"""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    set_spacing(p, 1.2, before_pt=2, after_pt=2)
+    # 左縮排 2 字，去掉首行縮排
+    pPr = p._p.get_or_add_pPr()
+    for old in pPr.findall(qn('w:ind')):
+        pPr.remove(old)
+    ind = OxmlElement('w:ind')
+    ind.set(qn('w:leftChars'), '200')   # 整段左縮 2 字
+    ind.set(qn('w:left'), str(2 * 14 * 20))
+    ind.set(qn('w:firstLineChars'), '0')
+    ind.set(qn('w:firstLine'), '0')
+    pPr.append(ind)
+    add_runs(p, text, 13)
 
 def add_list_item(doc, text, line_mult=1.2):
     """清單項目：• 開頭，14pt；可指定行距（參考文獻章用 1.5x）。"""
@@ -679,6 +707,13 @@ def parse_md(filepath, chapter_title):
         if m:
             last_md_img_key = None
             yield ('list', m.group(1))
+            continue
+
+        # Markdown blockquote `> ...` → 剝掉 `>` 當引言段落輸出
+        m = RE_BLOCKQUOTE.match(stripped)
+        if m:
+            last_md_img_key = None
+            yield ('quote', m.group(1))
             continue
 
         # 正文
@@ -973,6 +1008,8 @@ def build():
             add_table_caption(doc, display)
         elif kind == 'list':
             add_list_item(doc, maybe_convert_refs(content), line_mult=1.5 if use_15x_spacing else 1.2)
+        elif kind == 'quote':
+            add_quote(doc, maybe_convert_refs(content))
         elif kind == 'table':
             add_table(doc, content, fig_registry, table_registry)
         elif kind == 'block_math':

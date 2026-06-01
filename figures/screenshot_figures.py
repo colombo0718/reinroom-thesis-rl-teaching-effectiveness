@@ -18,6 +18,8 @@ IMAGES_DIR = ROOT / "images"
 # 註：移除 title/subtitle/footnote 後，body height 已縮減
 FIGURES = [
     ("fig3-2-protocol-flow.html",       "fig3-2.png", 1200, 800),
+    ("fig3-3-qlearning-flow.html",      "fig3-3.png",  900, 620),
+    ("fig3-4-dqn-bidirectional.html",   "fig3-4.png",  800, 500),
     ("fig4-1-experiment-flow.html",     "fig4-1.png", 1400, 980),
     ("fig5-1-pretest-posttest-box.html","fig5-1.png", 1200, 640),
     ("fig5-2-gain-comparison.html",     "fig5-2.png", 1200, 640),

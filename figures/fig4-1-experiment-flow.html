@@ -63,19 +63,14 @@ flowchart TB
     Split -->|RR 介面| A
     Split -->|Gymnasium + Colab| B
 
-    A --> PostA
-    B --> PostB
+    A --> Post
+    B --> Post
 
-    subgraph PostA[Day 2 結束：RR 組後測]
-        POSTA[8 題概念後測<br/>+ Section 3 平台回饋<br/>+ NASA-TLX + SUS<br/>+ 開放題]
+    subgraph Post[Day 2 結束：兩組後測（內容相同）]
+        POST[8 題概念後測<br/>+ 平台回饋量表<br/>+ NASA-TLX + SUS<br/>+ 開放題]
     end
 
-    subgraph PostB[Day 2 結束：Colab 組後測]
-        POSTB[8 題概念後測<br/>+ Section 3 平台回饋<br/>+ NASA-TLX + SUS<br/>+ 開放題]
-    end
-
-    PostA --> Analysis[資料分析<br/>配對 t-test + gain score + 完成時間 t-test + 質性歸納]
-    PostB --> Analysis
+    Post --> Analysis[資料分析<br/>配對 t-test + gain score + 完成時間 t-test + 質性歸納]
 
     Analysis --> End([研究結論])
 
@@ -88,7 +83,7 @@ flowchart TB
     class PT pre
     class A_D1,A_D2 A
     class B_D1,B_D2 B
-    class POSTA,POSTB post
+    class POST post
     class Analysis ana
   </div>
 </div>

@@ -22,7 +22,7 @@
     width: 1100px;
     display: flex;
     gap: 8px;
-    font-size: 12px;
+    font-size: 14px;
     color: #666;
     margin-top: 6px;
   }
@@ -85,17 +85,17 @@ new Chart(document.getElementById('chart'), {
     },
     scales: {
       x: {
-        ticks: { font: { size: 14, weight: 'bold' } },
+        ticks: { font: { size: 18, weight: 'bold' } },
         grid: { display: false },
       },
       y: {
         beginAtZero: true,
         max: 100,
-        ticks: { font: { size: 13 }, stepSize: 10 },
+        ticks: { font: { size: 16 }, stepSize: 10 },
         title: {
           display: true,
           text: 'SUS 分數（0–100）',
-          font: { size: 15 },
+          font: { size: 18 },
         },
         grid: { color: '#eee' },
       },
@@ -141,13 +141,13 @@ new Chart(document.getElementById('chart'), {
         sus.B.reduce((a,b)=>a+b,0) / sus.B.length,
       ];
       ctx.save();
-      ctx.font = 'bold 14px sans-serif';
+      ctx.font = 'bold 18px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#000';
       const meta = chart.getDatasetMeta(0);
       meta.data.forEach((box, i) => {
         const yp = chart.scales.y.getPixelForValue(means[i]);
-        ctx.fillText(`M=${means[i].toFixed(1)}`, box.x, yp - 8);
+        ctx.fillText(`M=${means[i].toFixed(1)}`, box.x, yp - 10);
       });
       ctx.restore();
     },
