@@ -17,11 +17,12 @@ build_thesis.py — 元智大學碩士論文組裝腳本（格式A）
   支援字尾：圖 3-11a → images/fig3-11a.png
 """
 
+import json
 import re
 from pathlib import Path
 from docx import Document
 from docx.shared import Pt, Cm
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 from lxml import etree
@@ -68,6 +69,20 @@ def latex_to_omml(tex, display=False):
         return None
 
 BASE    = Path(__file__).parent
+
+# ── 目錄頁碼對照（由 build_with_toc.py 在 2-pass 之間寫入） ──────────────
+TOC_PAGES_FILE = BASE / 'toc_pages.json'
+TOC_PAGES = {}
+if TOC_PAGES_FILE.exists():
+    try:
+        with open(TOC_PAGES_FILE, encoding='utf-8') as _f:
+            TOC_PAGES = json.load(_f)
+    except Exception:
+        TOC_PAGES = {}
+
+def _toc_page(key):
+    """查 toc_pages.json；找不到回傳預設 '—'。"""
+    return str(TOC_PAGES.get(key, '—'))
 MD_DIR  = BASE / "md"
 IMG_DIR = BASE / "images"
 OUTPUT  = BASE / "論文_組裝.docx"
@@ -904,19 +919,29 @@ def add_static_toc(doc, title, entries, kind='chap'):
     """寫一份靜態目錄（不依賴 Word TOC field）。
     entries: 章節為 [(level, text)]；圖/表為 [(num, caption)]。
     kind: 'chap' / 'fig' / 'table'，控制條目樣式。
+    每條目右側以 dot-leader tab 對齊頁碼（頁碼由 toc_pages.json 查得，
+    找不到顯示「—」，待 2-pass 工作流填入）。
     """
     add_chapter_title(doc, title)
     if not entries:
         return
+
+    PAGE_TAB_CM = 15.5  # 條目右側頁碼欄對齊位置（左邊距內側 ~15.5cm）
+
     for item in entries:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         set_spacing(p, 1.5, before_pt=0, after_pt=0)
+
+        # 加 dot-leader right tab stop
+        p.paragraph_format.tab_stops.add_tab_stop(
+            Cm(PAGE_TAB_CM), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS
+        )
+
         if kind == 'chap':
             level, text = item
             indent = (level - 1) * 2   # 章=0 / 節=2 / 小節=4 字
             if indent:
-                set_first_line_indent_chars(p, 0)
                 pPr = p._p.get_or_add_pPr()
                 ind = OxmlElement('w:ind')
                 ind.set(qn('w:leftChars'), str(indent * 100))
@@ -925,10 +950,17 @@ def add_static_toc(doc, title, entries, kind='chap'):
             size = 14 if level == 1 else 13
             run = p.add_run(text)
             set_font(run, size, bold=(level == 1))
+            page_str = _toc_page(f'CHAP::{text}')
+            run_p = p.add_run('\t' + page_str)
+            set_font(run_p, size, bold=(level == 1))
         else:
             num, caption = item
             run = p.add_run(caption)
             set_font(run, 12)
+            prefix = 'FIG' if kind == 'fig' else 'TABLE'
+            page_str = _toc_page(f'{prefix}::{caption[:40]}')
+            run_p = p.add_run('\t' + page_str)
+            set_font(run_p, 12)
 
 
 def add_front_matter(doc, events=None, fig_registry=None, table_registry=None):
