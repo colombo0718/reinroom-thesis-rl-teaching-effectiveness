@@ -856,9 +856,85 @@ def add_verification_page(doc):
     add_page_break(doc)
 
 
-def add_front_matter(doc):
+def _collect_toc_entries(events, fig_registry, table_registry):
+    """掃 events 收集三組目錄條目（不含頁碼）。"""
+    chap_entries = []     # [(level, text)]，level 1=章 / 2=節 / 3=小節
+    fig_entries  = []     # [(num, caption_text)]
+    table_entries = []
+    fig_counter = 0
+    tab_counter = 0
+
+    for chapter_title, kind, content in events:
+        if kind == '__chapter_start__':
+            chap_entries.append((1, chapter_title))
+        elif kind == 'section':
+            text = convert_section_text(content) if CONVERT_SECTION_NUMBERING else content
+            chap_entries.append((2, text))
+        elif kind == 'subsection':
+            text = convert_subsection_text(content) if CONVERT_SUBSECTION_NUMBERING else content
+            chap_entries.append((3, text))
+        elif kind == 'figcaption':
+            fig_counter += 1
+            # 用 fig_registry 把原號轉成全文編號顯示
+            display = fig_registry.convert(content) if fig_registry else content
+            display = normalize_caption_punct(display) if NORMALIZE_CAPTION_PUNCT else display
+            fig_entries.append((fig_counter, display))
+        elif kind == 'md_image':
+            caption, _ = content
+            fig_counter += 1
+            display = fig_registry.convert(caption) if fig_registry else caption
+            display = normalize_caption_punct(display) if NORMALIZE_CAPTION_PUNCT else display
+            fig_entries.append((fig_counter, display))
+        elif kind == 'tablecaption':
+            tab_counter += 1
+            # tablecaption 渲染期用 render_caption_number 取序號；這裡用相同 sequence
+            if table_registry and table_registry.sequence:
+                idx = min(tab_counter - 1, len(table_registry.sequence) - 1)
+                _, n = table_registry.sequence[idx]
+                display = RE_TABLE_KEY.sub(lambda _m: f'表 {n}', content, count=1)
+            else:
+                display = content
+            display = normalize_caption_punct(display) if NORMALIZE_CAPTION_PUNCT else display
+            table_entries.append((tab_counter, display))
+
+    return chap_entries, fig_entries, table_entries
+
+
+def add_static_toc(doc, title, entries, kind='chap'):
+    """寫一份靜態目錄（不依賴 Word TOC field）。
+    entries: 章節為 [(level, text)]；圖/表為 [(num, caption)]。
+    kind: 'chap' / 'fig' / 'table'，控制條目樣式。
+    """
+    add_chapter_title(doc, title)
+    if not entries:
+        return
+    for item in entries:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        set_spacing(p, 1.5, before_pt=0, after_pt=0)
+        if kind == 'chap':
+            level, text = item
+            indent = (level - 1) * 2   # 章=0 / 節=2 / 小節=4 字
+            if indent:
+                set_first_line_indent_chars(p, 0)
+                pPr = p._p.get_or_add_pPr()
+                ind = OxmlElement('w:ind')
+                ind.set(qn('w:leftChars'), str(indent * 100))
+                ind.set(qn('w:left'), str(indent * 14 * 20))
+                pPr.append(ind)
+            size = 14 if level == 1 else 13
+            run = p.add_run(text)
+            set_font(run, size, bold=(level == 1))
+        else:
+            num, caption = item
+            run = p.add_run(caption)
+            set_font(run, 12)
+
+
+def add_front_matter(doc, events=None, fig_registry=None, table_registry=None):
     """加入前置部分（封面 / 書名頁 / 審定書 / 摘要 / 誌謝 / 目錄 / 圖目錄 / 表目錄）。
     封面/書名頁/審定書依元智格式 A 附件一/二/三填入；摘要與誌謝讀 md/。
+    目錄三組（目錄 / 表目錄 / 圖目錄）為靜態列表，不依賴 Word TOC field。
     """
     add_cover_page(doc)
     add_title_page(doc)
@@ -884,12 +960,16 @@ def add_front_matter(doc):
                 add_body_15x(doc, content)
     add_page_break(doc)
 
-    # 目錄 / 表目錄 / 圖目錄（依規範 R-G-A9_目錄中 順序；於 Word 按 F9 更新）
-    add_toc_field(doc, '目錄',   '\\o "1-3" \\h \\z \\u')
+    # 目錄 / 表目錄 / 圖目錄（依規範 R-G-A9_目錄中 順序）
+    if events is not None:
+        chap_e, fig_e, table_e = _collect_toc_entries(events, fig_registry, table_registry)
+    else:
+        chap_e, fig_e, table_e = [], [], []
+    add_static_toc(doc, '目錄',   chap_e,  kind='chap')
     add_page_break(doc)
-    add_toc_field(doc, '表目錄', '\\h \\z \\c "表"')
+    add_static_toc(doc, '表目錄', table_e, kind='table')
     add_page_break(doc)
-    add_toc_field(doc, '圖目錄', '\\h \\z \\c "圖"')
+    add_static_toc(doc, '圖目錄', fig_e,   kind='fig')
 
 
 def build():
@@ -925,19 +1005,19 @@ def build():
         settings.append(update_fields)
     update_fields.set(qn('w:val'), 'true')
 
-    # 前置部分（小寫羅馬數字 i, ii, iii...）
-    # OOXML 行為：inline sectPr（add_section_break 插入的）控制其【之前】的內容；
-    # 文件尾的 sectPr（doc.sections[0]）控制其【之後】（即正文）。
-    add_front_matter(doc)
-    add_section_break(doc, page_fmt='lowerRoman', start=1)        # 前置 → 小寫羅馬
-    set_section_page_format(doc.sections[0], fmt='decimal', start=1)  # 正文 → 阿拉伯數字
-
-    # Pass 1: 收集事件
+    # Pass 1: 先收集事件（給靜態目錄使用）
     events = collect_events()
 
     # Pass 2: 建立圖/表編號對照
     fig_registry   = build_fig_registry(events)   if CONVERT_FIGURE_NUMBERING else None
     table_registry = build_table_registry(events) if CONVERT_TABLE_NUMBERING  else None
+
+    # 前置部分（小寫羅馬數字 i, ii, iii...）— 靜態目錄需要 events + registries
+    # OOXML 行為：inline sectPr（add_section_break 插入的）控制其【之前】的內容；
+    # 文件尾的 sectPr（doc.sections[0]）控制其【之後】（即正文）。
+    add_front_matter(doc, events=events, fig_registry=fig_registry, table_registry=table_registry)
+    add_section_break(doc, page_fmt='lowerRoman', start=1)        # 前置 → 小寫羅馬
+    set_section_page_format(doc.sections[0], fmt='decimal', start=1)  # 正文 → 阿拉伯數字
 
     # Pass 3: 渲染 docx
     first_chapter = True
