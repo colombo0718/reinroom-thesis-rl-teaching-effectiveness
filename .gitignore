@@ -32,3 +32,6 @@ desktop.ini
 
 # Claude Code 內部檔案
 .claude/
+
+# 截圖腳本臨時 log
+_shot_log*.txt
