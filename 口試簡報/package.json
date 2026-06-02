@@ -11,6 +11,7 @@
     "dev": "slidev --open",
     "build": "slidev build",
     "export": "slidev export",
+    "preexport:pdf": "node prepare.mjs",
     "export:pdf": "slidev export --output 口試簡報.pdf --format pdf"
   },
   "dependencies": {
