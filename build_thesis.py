@@ -1045,11 +1045,13 @@ def build():
     table_registry = build_table_registry(events) if CONVERT_TABLE_NUMBERING  else None
 
     # 前置部分（小寫羅馬數字 i, ii, iii...）— 靜態目錄需要 events + registries
-    # OOXML 行為：inline sectPr（add_section_break 插入的）控制其【之前】的內容；
-    # 文件尾的 sectPr（doc.sections[0]）控制其【之後】（即正文）。
+    # OOXML 行為：inline sectPr（add_section_break 插入的）控制【之前】的內容（前置）；
+    # 文件尾的 sectPr（doc.sections[-1]）控制【之後】（即正文）。
+    # 注意 python-docx 加入 inline sectPr 後，doc.sections 會有兩個 section；
+    # [0] 是 inline（前置）、[-1] 是 trailing（正文），必須用 [-1] 設正文格式。
     add_front_matter(doc, events=events, fig_registry=fig_registry, table_registry=table_registry)
-    add_section_break(doc, page_fmt='lowerRoman', start=1)        # 前置 → 小寫羅馬
-    set_section_page_format(doc.sections[0], fmt='decimal', start=1)  # 正文 → 阿拉伯數字
+    add_section_break(doc, page_fmt='lowerRoman', start=1)              # 前置 → 小寫羅馬
+    set_section_page_format(doc.sections[-1], fmt='decimal', start=1)   # 正文 → 阿拉伯數字
 
     # Pass 3: 渲染 docx
     first_chapter = True

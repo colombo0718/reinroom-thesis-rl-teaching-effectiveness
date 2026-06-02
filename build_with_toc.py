@@ -112,19 +112,19 @@ def build_search_index():
 
 
 def scan_for_entries(pages, index):
-    """逐條目掃 PDF，第一次出現就記錄那頁的 visible page。
-    跳過目錄頁本身（內含大量 dot leader 條目），從第一個「第一章」標題頁開始。
+    """逐條目掃 PDF，第一次出現就記錄那頁的本文頁碼。
+    跳過目錄頁本身，從第一個「第一章」標題頁開始。
+    本文頁碼 = PDF seq − body_start + 1（不用 footer regex，可靠）。
     """
-    # 找本文起始 PDF seq：第一個含「第一章」但不含 dot leader 的頁
     body_start = 0
     for idx, vis, text in pages:
         if '第一章' in text and '.....' not in text:
             body_start = idx
             break
-    print(f"   本文起始：PDF seq {body_start} (visible page {pages[body_start-1][1]})")
+    print(f"   本文起始：PDF seq {body_start}（本文頁碼 1）")
 
     found = {}
-    body_pages = [(idx, vis, normalize(text))
+    body_pages = [(idx, normalize(text))
                   for idx, vis, text in pages
                   if idx >= body_start]
     for key, search_text in index.items():
@@ -133,9 +133,9 @@ def scan_for_entries(pages, index):
         target = normalize(search_text)
         if not target:
             continue
-        for idx, vis, ntext in body_pages:
+        for idx, ntext in body_pages:
             if target in ntext:
-                found[key] = vis
+                found[key] = str(idx - body_start + 1)
                 break
     return found
 
