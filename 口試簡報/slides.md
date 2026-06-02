@@ -31,7 +31,7 @@ fonts:
 </div>
 
 <!--
-各位老師午安，我是 [姓名]，今天要報告的題目是
+各位老師午安，我是趙士豪，今天要報告的題目是
 《Rein Room 強化教室：視覺化互動強化學習教學平台之設計與教學成效評估》，
 由黃怡錚老師指導。
 -->
@@ -42,35 +42,40 @@ layout: default
 
 # 簡報大綱
 
-<div class="grid grid-cols-5 gap-4 pt-12">
-  <div class="border rounded p-4 text-center">
-    <div class="text-3xl font-bold text-blue-500">1</div>
-    <div class="mt-2">研究動機</div>
-    <div class="text-sm opacity-60">與問題</div>
+<div class="grid grid-cols-6 gap-3 pt-12">
+  <div class="border rounded p-3 text-center">
+    <div class="text-2xl font-bold text-blue-500">1</div>
+    <div class="mt-2 text-sm">研究動機</div>
+    <div class="text-xs opacity-60">與問題</div>
   </div>
-  <div class="border rounded p-4 text-center">
-    <div class="text-3xl font-bold text-blue-500">2</div>
-    <div class="mt-2">RR 平台</div>
-    <div class="text-sm opacity-60">設計與特色</div>
+  <div class="border rounded p-3 text-center">
+    <div class="text-2xl font-bold text-blue-500">2</div>
+    <div class="mt-2 text-sm">文獻探討</div>
+    <div class="text-xs opacity-60">現有平台限制</div>
   </div>
-  <div class="border rounded p-4 text-center">
-    <div class="text-3xl font-bold text-blue-500">3</div>
-    <div class="mt-2">研究設計</div>
-    <div class="text-sm opacity-60">A/B 準實驗</div>
+  <div class="border rounded p-3 text-center">
+    <div class="text-2xl font-bold text-blue-500">3</div>
+    <div class="mt-2 text-sm">RR 平台</div>
+    <div class="text-xs opacity-60">設計與特色</div>
   </div>
-  <div class="border rounded p-4 text-center bg-blue-50">
-    <div class="text-3xl font-bold text-blue-700">4</div>
-    <div class="mt-2 font-bold">主要發現</div>
-    <div class="text-sm opacity-60">三大實證</div>
+  <div class="border rounded p-3 text-center">
+    <div class="text-2xl font-bold text-blue-500">4</div>
+    <div class="mt-2 text-sm">研究設計</div>
+    <div class="text-xs opacity-60">A/B 對照</div>
   </div>
-  <div class="border rounded p-4 text-center">
-    <div class="text-3xl font-bold text-blue-500">5</div>
-    <div class="mt-2">結論</div>
-    <div class="text-sm opacity-60">與貢獻</div>
+  <div class="border rounded p-3 text-center bg-blue-50">
+    <div class="text-2xl font-bold text-blue-700">5</div>
+    <div class="mt-2 text-sm font-bold">主要發現</div>
+    <div class="text-xs opacity-60">三主軸</div>
+  </div>
+  <div class="border rounded p-3 text-center">
+    <div class="text-2xl font-bold text-blue-500">6</div>
+    <div class="mt-2 text-sm">結論</div>
+    <div class="text-xs opacity-60">與未來工作</div>
   </div>
 </div>
 
-<!-- 接下來 20 分鐘會依序談五個部分，第四部分主要發現是今天的重頭戲。 -->
+<!-- 接下來約 20 分鐘會依序談六個部分，第五部分主要發現是今天的重頭戲。 -->
 
 ---
 layout: section
@@ -80,32 +85,12 @@ layout: section
 # 研究動機與問題
 
 ---
-layout: default
----
 
-# 一句話結論先講
-
-<div class="flex items-center justify-center h-3/4">
-  <div class="text-3xl text-center leading-relaxed">
-    本研究實證<br>
-    <span class="text-blue-600 font-bold">視覺化互動式 RL 教學平台</span><br>
-    在學生<span class="text-red-500 font-bold">「自主操作能力」</span>上<br>
-    有<span class="font-bold">獨立於程式碼導向工具</span>的貢獻
-  </div>
-</div>
-
-<!--
-報告開始前先告訴各位老師結論的一句話。
-詳細數據與論述待會展開。
--->
-
----
-
-# RL 是 AI 核心技術，但門檻高
+# 研究動機
 
 <div class="grid grid-cols-2 gap-8 pt-8">
   <div>
-    <h3 class="text-xl font-bold mb-4">RL 已是 AI 三大核心之一</h3>
+    <h3 class="text-xl font-bold mb-4">RL 是 AI 三大核心之一</h3>
     <ul class="space-y-2">
       <li>🎯 AlphaGo / AlphaZero（Silver et al., 2018）</li>
       <li>🚗 自動駕駛決策（Sallab et al., 2017）</li>
@@ -114,69 +99,72 @@ layout: default
     </ul>
   </div>
   <div>
-    <h3 class="text-xl font-bold mb-4">但學習者的門檻很高</h3>
+    <h3 class="text-xl font-bold mb-4">但學習者門檻高</h3>
     <ul class="space-y-2">
       <li>❌ 需要寫程式（Python、Gymnasium）</li>
-      <li>❌ 需要環境安裝（套件、依賴）</li>
+      <li>❌ 需要安裝環境（套件、依賴）</li>
       <li>❌ 抽象概念難視覺化</li>
       <li>❌ 學習回饋週期太長</li>
     </ul>
   </div>
 </div>
 
+<div class="mt-8 text-center text-xl text-blue-600">
+  ⇒ 視覺化互動式平台是降低門檻的可能路徑
+</div>
+
 <!--
-RL 已是 AI 三大核心技術之一，但其抽象性與程式門檻
-使其難以下放給非資工背景學習者。
+RL 已是 AI 三大核心技術之一，但抽象性與程式門檻使其難以下放給非資工背景學習者。
+本研究的起點：能否設計一個視覺化互動平台，降低 RL 入門門檻？
 -->
 
 ---
 
-# 現有 RL 教學平台的限制
+# 研究問題與答案概覽
 
-| 路徑 | 代表 | 優勢 | 限制 |
-|------|------|------|------|
-| **程式碼導向** | Gymnasium + Colab | 業界標準、彈性高 | 程式門檻、回饋週期長 |
-| **硬體導向** | LEGO + RL (Zhang et al., 2022) | 實體操作、具象化 | 成本高、後勤複雜、難規模化 |
-| **視覺化互動** | ARtonomous (Dietz et al., 2022) | 低門檻、即時回饋 | 案例少、缺實證評量 |
-
-<div class="mt-12 text-center text-xl text-blue-600">
-  ⇒ 第三條路是值得驗證的方向
-</div>
-
-<!--
-現有 K-12 / 入門 RL 教學分兩派，視覺化互動平台是值得深入驗證的第三條路。
--->
-
----
-
-# 研究問題（RQ）
-
-<div class="grid grid-cols-3 gap-6 pt-12">
-  <div class="border-2 border-blue-300 rounded-lg p-6">
-    <div class="text-blue-600 text-3xl font-bold mb-3">RQ 1</div>
-    <div class="font-bold mb-2">概念理解</div>
-    <div class="text-sm opacity-80">
-      視覺化平台能否有效傳遞 RL 核心概念（state / action / reward / episode）？
+<div class="grid grid-cols-3 gap-4 pt-6">
+  <div class="border-2 border-blue-300 rounded-lg p-4">
+    <div class="text-blue-600 text-2xl font-bold mb-2">RQ 1</div>
+    <div class="font-bold mb-1 text-sm">理論知識傳遞</div>
+    <div class="text-xs opacity-80 mb-3">
+      視覺化平台能否傳遞 RL 核心概念？
+    </div>
+    <div class="border-t pt-2 text-xs">
+      <span class="font-bold text-gray-600">答：</span>
+      兩組前後測表現接近
     </div>
   </div>
-  <div class="border-2 border-blue-300 rounded-lg p-6">
-    <div class="text-blue-600 text-3xl font-bold mb-3">RQ 2</div>
-    <div class="font-bold mb-2">圖表判讀</div>
-    <div class="text-sm opacity-80">
-      學習者能否透過平台建立訓練曲線與 Q-table 熱力圖的判讀能力？
+  <div class="border-2 border-blue-300 rounded-lg p-4">
+    <div class="text-blue-600 text-2xl font-bold mb-2">RQ 2</div>
+    <div class="font-bold mb-1 text-sm">圖表判讀</div>
+    <div class="text-xs opacity-80 mb-3">
+      學習者能否建立訓練曲線與 Q-table 判讀能力？
+    </div>
+    <div class="border-t pt-2 text-xs">
+      <span class="font-bold text-gray-600">答：</span>
+      兩組能力相近（T1–T4）
     </div>
   </div>
-  <div class="border-2 border-blue-300 rounded-lg p-6">
-    <div class="text-blue-600 text-3xl font-bold mb-3">RQ 3</div>
-    <div class="font-bold mb-2">自主操作</div>
-    <div class="text-sm opacity-80">
-      平台能否提升學習者的自主操作能力與學習動機？
+  <div class="border-2 border-red-400 rounded-lg p-4 bg-red-50">
+    <div class="text-red-600 text-2xl font-bold mb-2">RQ 3</div>
+    <div class="font-bold mb-1 text-sm">學習動機 + 操作意願</div>
+    <div class="text-xs opacity-80 mb-3">
+      平台能否提升學習動機與自主操作意願？
+    </div>
+    <div class="border-t pt-2 text-xs">
+      <span class="font-bold text-red-600">答：</span>
+      <span class="font-bold">RR 勝出（本研究主軸）</span>
     </div>
   </div>
 </div>
 
+<div class="mt-6 text-center text-sm opacity-70">
+  RQ1、RQ2 之答案於主要發現中以數據呈現；RQ3 為本研究核心價值所在
+</div>
+
 <!--
-本研究三個核心問題。
+本研究三個 RQ，後面主要發現會分別對應到答案。
+RQ1 RQ2 兩組差不多；RQ3 RR 勝出，這是本研究價值所在。
 -->
 
 ---
@@ -216,6 +204,62 @@ layout: section
 ---
 
 # Part 2.
+# 文獻探討
+
+---
+
+# 現有 RL 教學平台的三條路
+
+| 路徑 | 代表 | 優勢 | 限制 |
+|------|------|------|------|
+| **程式碼導向** | Gymnasium + Colab | 業界標準、彈性高 | 程式門檻、回饋週期長 |
+| **硬體導向** | LEGO + RL (Zhang et al., 2022, 2023) | 實體操作、具象化 | 成本高、後勤複雜、難規模化 |
+| **視覺化互動** | ARtonomous (Dietz et al., 2022) | 低門檻、即時回饋 | 案例少、缺實證評量 |
+
+<div class="mt-8 text-center text-xl text-blue-600">
+  本研究切入點：在「視覺化互動」這條路加上完整實證
+</div>
+
+<!--
+現有 K-12 / 入門 RL 教學分三派，視覺化互動是值得深入驗證的方向。
+-->
+
+---
+
+# 教學設計理論基礎
+
+<div class="grid grid-cols-2 gap-8 pt-6">
+  <div class="border-l-4 border-blue-500 pl-4">
+    <h3 class="font-bold text-lg mb-3">即時回饋之教學效益</h3>
+    <ul class="space-y-2 text-sm">
+      <li>📚 Hattie & Timperley (2007) — 即時回饋對學習成效顯著</li>
+      <li>📚 Mayer (2009) — 多媒體學習理論</li>
+      <li>📚 Sweller (1988) — 認知負荷理論</li>
+    </ul>
+  </div>
+  <div class="border-l-4 border-blue-500 pl-4">
+    <h3 class="font-bold text-lg mb-3">學習動機與自我效能</h3>
+    <ul class="space-y-2 text-sm">
+      <li>📚 Bandura (1977) — 自我效能理論</li>
+      <li>📚 Ryan & Deci (2000) — 自我決定理論（內在動機）</li>
+      <li>📚 Barnett & Ceci (2002) — 遷移能力分類</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mt-8 p-4 bg-blue-50 text-center">
+  本研究 RR 平台之設計理念 <span class="font-bold text-blue-700">同時對應</span>「縮短回饋週期」與「自主操作建立動機」兩條理論線
+</div>
+
+<!--
+本研究的教學設計理論基礎，呼應 RR 平台兩大設計訴求。
+-->
+
+---
+layout: section
+---
+
+# Part 3.
 # Rein Room 平台
 
 ---
@@ -242,7 +286,7 @@ layout: section
 </div>
 
 <!--
-RR 是我自行開發的純前端 RL 教學平台，網址打開就能用，不用安裝任何環境。
+RR 是我自行開發的純前端 RL 教學平台，網址打開就能用。
 -->
 
 ---
@@ -294,11 +338,11 @@ RR 是我自行開發的純前端 RL 教學平台，網址打開就能用，不�
 </div>
 
 <div class="text-center text-lg mt-6 text-blue-600">
-  讓學生看見智能體當下的策略地圖，不再是黑盒子
+  讓學生看見智能體當下的策略地圖
 </div>
 
 <!--
-即時更新的訓練曲線與動作選擇熱力圖，讓學生看見學習過程，不再是 print log 的黑盒子。
+即時更新的訓練曲線與動作選擇熱力圖，讓學生看見學習過程。
 -->
 
 ---
@@ -316,59 +360,71 @@ RR 是我自行開發的純前端 RL 教學平台，網址打開就能用，不�
 </div>
 
 <!--
-分析頁三柱圖把「策略 Q 值」和「實際動作選擇」的關係明確攤開。
+分析頁三柱圖把「策略 Q 值」和「動作選擇」的關係並列。
 -->
 
 ---
 
-# 五個遊戲環境 — 由簡入難的學習階梯
+# 五個遊戲環境 — 學習階梯（對應 RQ）
 
-<div class="grid grid-cols-5 gap-2 pt-4">
+<div class="grid grid-cols-5 gap-2 pt-2">
   <div class="text-center">
-    <img src="/images/fig3-11a.png" class="h-32 mx-auto rounded shadow" />
-    <div class="mt-2 font-bold text-sm">T1 Maze 1D</div>
-    <div class="text-xs opacity-60">概念入門</div>
+    <img src="/images/fig3-11a.png" class="h-28 mx-auto rounded shadow" />
+    <div class="mt-1 font-bold text-xs">T1 MAB</div>
+    <div class="text-xs opacity-60">SAR 概念</div>
   </div>
   <div class="text-center">
-    <img src="/images/fig3-11b.png" class="h-32 mx-auto rounded shadow" />
-    <div class="mt-2 font-bold text-sm">T2 Maze 2D</div>
-    <div class="text-xs opacity-60">熱力圖</div>
+    <img src="/images/fig3-11b.png" class="h-28 mx-auto rounded shadow" />
+    <div class="mt-1 font-bold text-xs">T2 Maze 1D</div>
+    <div class="text-xs opacity-60">episode</div>
   </div>
   <div class="text-center">
-    <img src="/images/fig3-11c.png" class="h-32 mx-auto rounded shadow" />
-    <div class="mt-2 font-bold text-sm">T3 Dino</div>
-    <div class="text-xs opacity-60">連續狀態</div>
+    <img src="/images/fig3-11c.png" class="h-28 mx-auto rounded shadow" />
+    <div class="mt-1 font-bold text-xs">T3 Maze 2D</div>
+    <div class="text-xs opacity-60">Q-table 熱力圖</div>
   </div>
   <div class="text-center">
-    <img src="/images/fig3-11d.png" class="h-32 mx-auto rounded shadow" />
-    <div class="mt-2 font-bold text-sm">T4 Heli</div>
-    <div class="text-xs opacity-60">曲線判讀</div>
+    <img src="/images/fig3-11d.png" class="h-28 mx-auto rounded shadow" />
+    <div class="mt-1 font-bold text-xs">T4 Heli</div>
+    <div class="text-xs opacity-60">曲線判讀（主評量）</div>
   </div>
   <div class="text-center border-2 border-red-400 rounded p-1">
-    <img src="/images/fig3-11e.png" class="h-32 mx-auto rounded shadow" />
-    <div class="mt-2 font-bold text-sm text-red-500">T5 Fighter</div>
+    <img src="/images/fig3-11e.png" class="h-28 mx-auto rounded shadow" />
+    <div class="mt-1 font-bold text-xs text-red-500">T5 Fighter</div>
     <div class="text-xs opacity-60">無預設參數</div>
   </div>
 </div>
 
-<div class="mt-6 text-center text-sm opacity-60">
-  本研究使用 T1–T5 作為評量任務；T5 為「自主決策」進階任務
-</div>
+<table class="w-full mt-4 text-sm">
+  <thead>
+    <tr class="bg-gray-100">
+      <th class="p-2 text-left">任務</th>
+      <th class="p-2 text-left">學生要做什麼</th>
+      <th class="p-2 text-center">對應 RQ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="border-b"><td class="p-2">T1–T3</td><td class="p-2">入門概念 + 圖表觀察</td><td class="p-2 text-center">RQ1, RQ2</td></tr>
+    <tr class="border-b"><td class="p-2">T4 Heli</td><td class="p-2">主評量任務，須從曲線判讀調整策略</td><td class="p-2 text-center">RQ2</td></tr>
+    <tr class="bg-red-50"><td class="p-2 font-bold">T5 Fighter</td><td class="p-2">無預設超參數，須自主決定 α / γ / ε</td><td class="p-2 text-center font-bold text-red-500">RQ3</td></tr>
+  </tbody>
+</table>
 
 <!--
-五個遊戲構成從 1D 迷宮到 Fighter 自主決策的學習階梯。T5 是核心評量。
+五個遊戲構成從簡入難的學習階梯。
+T1-T3 對應 RQ1 RQ2，T5 對應 RQ3。
 -->
 
 ---
 layout: section
 ---
 
-# Part 3.
+# Part 4.
 # 研究設計
 
 ---
 
-# 準實驗 A/B 對照流程
+# A/B 組實驗流程對照
 
 <div class="text-center">
   <img src="/images/fig4-1.png" class="max-h-96 mx-auto rounded shadow-lg" />
@@ -386,94 +442,73 @@ layout: section
 </div>
 
 <!--
-採準實驗設計，兩天各 3 小時連續課程，相同教學節奏。
+兩組同樣兩天 3 小時、同樣的教學節奏，唯一差別是平台。
+後測內容兩組相同，收束在同一節點。
 -->
 
 ---
 
-# Treatment Fidelity 七層次（上）
+# 教學介入標準化（六項）
 
-<div class="space-y-3 pt-4">
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">1</div>
-    <div><span class="font-bold">任務環境對齊（rr_envs.py）</span> — 把 RR 任務逐字對齊到 Gymnasium，兩組任務本質完全相同</div>
+<div class="grid grid-cols-2 gap-3 pt-6">
+  <div class="border-l-4 border-blue-500 pl-3 py-2">
+    <span class="font-bold">① 任務環境對齊（rr_envs.py）</span><br>
+    <span class="text-sm opacity-70">RR 任務逐字對齊 Gymnasium 介面</span>
   </div>
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">2</div>
-    <div><span class="font-bold">AI 影片 18 支</span> — 6 支共用 RL 理論影片 + 各組 6 支，消除講師差異</div>
+  <div class="border-l-4 border-blue-500 pl-3 py-2">
+    <span class="font-bold">② 18 支 AI 教學影片</span><br>
+    <span class="text-sm opacity-70">6 支共用理論 + 各組 6 支操作</span>
   </div>
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">3</div>
-    <div><span class="font-bold">預寫講師講稿</span> — A 組 410 行、B 組 378 行，照念設計</div>
+  <div class="border-l-4 border-blue-500 pl-3 py-2">
+    <span class="font-bold">③ 預寫講師講稿（兩組各約 400 行）</span><br>
+    <span class="text-sm opacity-70">英文照念設計，避免講師風格差異</span>
   </div>
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">4</div>
-    <div><span class="font-bold">標準化學生指引</span> — 兩組各以 13 步驟編號排列</div>
+  <div class="border-l-4 border-blue-500 pl-3 py-2">
+    <span class="font-bold">④ 標準化學生指引（13 步驟）</span><br>
+    <span class="text-sm opacity-70">兩組學生看到同樣編排</span>
+  </div>
+  <div class="border-l-4 border-blue-500 pl-3 py-2">
+    <span class="font-bold">⑤ 雙平台備援</span><br>
+    <span class="text-sm opacity-70">Colab + Binder 當天備援</span>
+  </div>
+  <div class="border-l-4 border-blue-500 pl-3 py-2">
+    <span class="font-bold">⑥ 影片品質檢核 SOP</span><br>
+    <span class="text-sm opacity-70">ffmpeg 抽幀逐張視覺驗收</span>
   </div>
 </div>
 
-<div class="mt-6 text-center text-blue-600 text-sm">
-  目的：讓「平台介面差異」成為兩組唯一的系統性差異
+<div class="mt-6 text-center text-blue-600">
+  目的：確保「平台介面差異」是兩組唯一的系統性差異
 </div>
 
 <!--
-為了讓平台介面成為唯一系統性差異，我設計七層標準化。
-rr_envs.py 是最重要的一層。
+我們在研究設計上採用了六項措施確保兩組教學一致，
+讓平台介面成為唯一系統性差異。
 -->
 
 ---
 
-# Treatment Fidelity 七層次（下）
-
-<div class="space-y-3 pt-4">
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">5</div>
-    <div><span class="font-bold">雙平台 redundancy</span> — Colab 同時部署於 Colab + Binder，當天備援</div>
-  </div>
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">6</div>
-    <div><span class="font-bold">Frame Review Loop</span> — 用 ffmpeg 抽幀逐張視覺驗收影片品質</div>
-  </div>
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">7</div>
-    <div><span class="font-bold text-red-500">實驗用平台版本凍結</span> — 實驗期間 RR 子網域不做任何修改</div>
-  </div>
-</div>
-
-<div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-500">
-  💡 <span class="font-bold">設定平台效益的「下界」(lower bound)</span><br>
-  <span class="text-sm">在最低教學介入條件下仍能觀察到的差異 = 平台介面本身可歸因的效益</span>
-</div>
-
-<!--
-平台版本凍結這層特別重要：所有觀察到的效益都是「最低教學介入條件下」可歸因於平台介面的部分。
-更熟練的教師、更豐富的引導，預期能進一步放大 RR 在 T5 上展現的優勢。
--->
-
----
-
-# 評量工具四層次
+# 實驗資料收集
 
 <div class="flex justify-center pt-6">
   <div class="space-y-3 text-center">
-    <div class="bg-red-200 px-12 py-4 rounded shadow font-bold">
-      🎯 概念層 — 前後測概念理解測驗
+    <div class="bg-red-200 px-12 py-3 rounded shadow font-bold">
+      🎯 理論知識前後測（8 題）
     </div>
-    <div class="bg-orange-200 px-16 py-4 rounded shadow font-bold">
-      📊 行為層 — 任務完成率 + 完成時間（雙指標）
+    <div class="bg-orange-200 px-16 py-3 rounded shadow font-bold">
+      📊 任務完成記錄（完成率 + 完成時間）
     </div>
-    <div class="bg-yellow-200 px-20 py-4 rounded shadow font-bold">
-      💭 情意層 — Section 3 / NASA-TLX / SUS / 開放題
+    <div class="bg-yellow-200 px-20 py-3 rounded shadow font-bold">
+      💭 自評量表：平台回饋（5 題）/ NASA-TLX / SUS / 開放題
     </div>
-    <div class="bg-green-200 px-24 py-4 rounded shadow font-bold">
-      👀 課堂觀察層 — 助教逐時記錄
+    <div class="bg-green-200 px-24 py-3 rounded shadow font-bold">
+      👀 課堂觀察記錄（助教逐時填寫）
     </div>
   </div>
 </div>
 
 <!--
-四層次評量：概念、行為、情意、課堂觀察。
-完整捕捉學習成效的不同面向。
+實驗資料收集涵蓋認知、行為、情意、課堂觀察四類資料來源。
 -->
 
 ---
@@ -481,16 +516,17 @@ layout: section
 class: bg-blue-50
 ---
 
-# Part 4.
+# Part 5.
 # 主要發現
-<div class="text-xl mt-4 opacity-80">三大實證 + 兩個誠實面對</div>
+
+<div class="text-xl mt-4 opacity-80">三大主軸：學習動機 / 輕鬆度 / 操作意願</div>
 
 ---
 
-# 概念測驗 — 兩組均進步
+# RQ1 理論知識測驗：Colab 顯著進步
 
 <div class="text-center pt-4">
-  <img src="/images/fig5-1.png" class="max-h-80 mx-auto rounded shadow" />
+  <img src="/images/fig5-1.png" class="max-h-72 mx-auto rounded shadow" />
 </div>
 
 <div class="grid grid-cols-2 gap-8 mt-4">
@@ -502,286 +538,87 @@ class: bg-blue-50
   </div>
 </div>
 
-<!-- 先看概念測驗：兩組都進步了，但進步幅度與顯著性不同。 -->
-
----
-
-# 【誠實承認】Colab 概念顯著、RR 未顯著
-
-<div class="grid grid-cols-2 gap-12 pt-8">
-  <div class="bg-gray-100 p-6 rounded">
-    <h3 class="font-bold text-gray-700 mb-3">事實</h3>
-    <ul class="space-y-2 text-sm">
-      <li>Colab 概念測驗達顯著進步（p = .01）</li>
-      <li>RR 增益方向一致但未達顯著（p = .28）</li>
-      <li>組間增益比較未顯著（p = .12）</li>
-    </ul>
-  </div>
-  <div class="bg-blue-50 p-6 rounded">
-    <h3 class="font-bold text-blue-700 mb-3">意涵</h3>
-    <ul class="space-y-2 text-sm">
-      <li>✓ 本研究承認此事實</li>
-      <li>✓ <span class="font-bold">反向證明 Colab 組教學設計完整</span></li>
-      <li>✓ Colab 組不是稻草人</li>
-      <li>✓ 概念測驗只反映表層認知</li>
-    </ul>
-  </div>
-</div>
-
-<div class="mt-8 text-center text-lg text-blue-600">
-  → 需檢視行為與情意層的多維指標
+<div class="mt-6 text-center text-blue-700">
+  ⇒ RQ1 答案：兩組均能傳遞核心概念，Colab 組於此項表現較佳
 </div>
 
 <!--
-誠實承認：Colab 顯著進步，RR 未顯著。
-這證明 Colab 組教學設計完整、未被刻意削弱。
-但「學習成效」是多維的，標準化測驗只能反映表層認知。
+RQ1：兩組都進步，Colab 組於理論知識測驗達顯著進步。
+這就是答案：兩組都能傳遞概念。
 -->
 
 ---
 
-# 任務完成率全貌 — 前三接近、T4/T5 分歧
+# RQ2 任務完成率全貌
 
-<div class="text-center">
-  <img src="/images/fig5-3.png" class="max-h-96 mx-auto rounded shadow" />
+<div class="text-center pt-2">
+  <img src="/images/fig5-3.png" class="max-h-72 mx-auto rounded shadow" />
 </div>
 
-<div class="mt-4 text-center text-blue-600">
-  T1–T3 兩組完成率接近，但 <span class="font-bold">T4 開始出現完成時間差距，T5 完成率出現結構性差異</span>
-</div>
-
-<!-- 五個任務完成率，前三個接近，T4 與 T5 開始出現結構性差異。 -->
-
----
-
-# 【主菜 1】T5 Fighter 完成率 61% vs 25%
-
-<div class="grid grid-cols-2 gap-8 pt-8">
-  <div class="text-center">
-    <div class="text-7xl font-bold text-blue-600">61%</div>
-    <div class="text-xl mt-2">RR 組</div>
-    <div class="opacity-60">11 / 18 完成</div>
-  </div>
-  <div class="text-center">
-    <div class="text-7xl font-bold text-gray-500">25%</div>
-    <div class="text-xl mt-2">Colab 組</div>
-    <div class="opacity-60">3 / 12 完成</div>
-  </div>
-</div>
-
-<div class="mt-12 text-center">
-  <div class="inline-block text-3xl font-bold text-red-500 border-4 border-red-500 px-8 py-2 rounded">
-    2.4 ×
-  </div>
-</div>
-
-<div class="mt-6 text-center text-sm opacity-70">
-  T5 Fighter：不提供任何預設超參數，學生需根據前序經驗自主決定 α / γ / ε
-</div>
-
-<!--
-T5 刻意不給任何預設超參數，逼學生根據前序經驗自主決策。
-RR 11/18 完成，Colab 3/12，差距 2.4 倍。
-這是本研究最具說服力的單一發現。
--->
-
----
-
-# 【主菜 1 補強】T4/T5 完成時間雙重勝出
-
-<div class="overflow-x-auto pt-4">
-  <table class="w-full text-base">
-    <thead>
-      <tr class="bg-blue-100">
-        <th class="p-3 text-left">任務</th>
-        <th class="p-3">RR 組（分鐘）</th>
-        <th class="p-3">Colab 組（分鐘）</th>
-        <th class="p-3">t 值</th>
-        <th class="p-3">p 值</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="border-b">
-        <td class="p-3 font-bold">T4 Heli</td>
-        <td class="p-3 text-center">17.6</td>
-        <td class="p-3 text-center">53.0</td>
-        <td class="p-3 text-center">−3.505</td>
-        <td class="p-3 text-center text-red-500 font-bold">.014 *</td>
-      </tr>
-      <tr class="bg-red-50">
-        <td class="p-3 font-bold">T5 Fighter</td>
-        <td class="p-3 text-center">20.4</td>
-        <td class="p-3 text-center">33.3</td>
-        <td class="p-3 text-center">−5.000</td>
-        <td class="p-3 text-center text-red-500 font-bold">&lt; .001 ***</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="mt-6 text-center text-blue-600 text-lg">
-  RR 不只完成率高，<span class="font-bold">「完成所需努力」結構性更少</span>
-</div>
-
-<!--
-T5 完成時間 RR 20.4 vs Colab 33.3，p < .001。
-T4 完成率相近但時間差更大（17.6 vs 53.0，p=.014）。
-這是「完成率 + 完成時間」雙指標的力量。
--->
-
----
-
-# 【主菜 1 收尾】「完成率 + 完成時間」雙指標方法
-
-<div class="grid grid-cols-2 gap-4 pt-8">
-  <div class="border rounded p-4">
-    <h3 class="font-bold mb-2">只看完成率的問題</h3>
-    <div class="text-sm opacity-70">
-      可能高估能力 — 完成的人可能花很久才完成
-    </div>
-  </div>
-  <div class="border rounded p-4">
-    <h3 class="font-bold mb-2">只看完成時間的問題</h3>
-    <div class="text-sm opacity-70">
-      會忽略未完成樣本 — 失敗者根本不在統計裡
-    </div>
-  </div>
-</div>
-
-<div class="mt-8 p-6 bg-blue-100 rounded">
-  <div class="text-center font-bold text-lg text-blue-700">
-    雙指標互補 → 完整描述「遷移能力」
-  </div>
-  <div class="text-center text-sm mt-2 opacity-70">
-    本研究方法學貢獻之一：可推廣到其他平台類教學工具的評量
-  </div>
-</div>
-
-<!--
-不只看完成率會錯失「完成所需努力」；不只看完成時間會遺漏未完成樣本。
-雙指標互補才能完整描述遷移能力。這是本研究的方法學貢獻。
--->
-
----
-
-# 【主菜 2】開放題 6-2「最困難的部分」
-
-<div class="overflow-x-auto pt-4">
-  <table class="w-full text-base">
-    <thead>
-      <tr class="bg-blue-100">
-        <th class="p-3 text-left">主題</th>
-        <th class="p-3">RR 組</th>
-        <th class="p-3">Colab 組</th>
-        <th class="p-3">Colab / RR 倍率</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="bg-red-50 font-bold">
-        <td class="p-3">參數調整困難</td>
-        <td class="p-3 text-center">3 / 18 (17%)</td>
-        <td class="p-3 text-center">5 / 12 (42%)</td>
-        <td class="p-3 text-center text-red-500 text-xl">2.5 ×</td>
-      </tr>
-      <tr class="bg-red-50 font-bold">
-        <td class="p-3">圖表判讀困難</td>
-        <td class="p-3 text-center">3 / 18 (17%)</td>
-        <td class="p-3 text-center">5 / 12 (42%)</td>
-        <td class="p-3 text-center text-red-500 text-xl">2.5 ×</td>
-      </tr>
-      <tr class="border-b">
-        <td class="p-3">概念 / 術語理解困難</td>
-        <td class="p-3 text-center">17%</td>
-        <td class="p-3 text-center">8%</td>
-        <td class="p-3 text-center">0.5 ×</td>
-      </tr>
-      <tr class="border-b">
-        <td class="p-3">任務不明確 / 資訊量過大</td>
-        <td class="p-3 text-center">11%</td>
-        <td class="p-3 text-center">0%</td>
-        <td class="p-3 text-center text-orange-500">RR 獨有</td>
-      </tr>
-      <tr class="border-b">
-        <td class="p-3">表示無困難</td>
-        <td class="p-3 text-center">33%</td>
-        <td class="p-3 text-center">17%</td>
-        <td class="p-3 text-center">0.5 ×</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!--
-請學生自己寫「最困難的部分」，編碼後得到驚人發現。
-參數調整與圖表判讀困難，Colab 都是 RR 的 2.5 倍。
--->
-
----
-
-# 【主菜 2 補強】質性語言對比
-
-<div class="grid grid-cols-2 gap-6 pt-6">
-  <div class="border-2 border-blue-400 rounded-lg p-6">
-    <h3 class="font-bold text-blue-600 mb-3">RR 組：感受性語言</h3>
-    <ul class="space-y-3 text-sm">
-      <li class="italic">"learned how the parameters affects the performance"</li>
-      <li class="italic">"Task 4 because the content was pretty interesting and easy to understand"</li>
-      <li class="italic">"adjusting the value"</li>
-    </ul>
-    <div class="mt-4 text-xs opacity-70">→ 多以「感受到」「能調」為主軸</div>
-  </div>
-  <div class="border-2 border-gray-400 rounded-lg p-6">
-    <h3 class="font-bold text-gray-700 mb-3">Colab 組：程序性語言</h3>
-    <ul class="space-y-3 text-sm">
-      <li class="italic">"Hyperparameter Tuning. Choosing values for Learning rate (α), Discount factor (γ), Exploration rate (ε)."</li>
-      <li class="italic">"Small changes can lead to very different behaviors"</li>
-    </ul>
-    <div class="mt-4 text-xs opacity-70">→ 精準描述但仍將其列為最困難</div>
-  </div>
-</div>
-
-<div class="mt-6 text-center text-blue-600">
-  <span class="font-bold">Colab 能精準描述參數理論、RR 則建立直觀感受</span>
-</div>
-
-<!--
-兩組學生對參數的描述語言截然不同：
-RR 學生用感受性語言，Colab 學生用程序性語言。
-Colab 能精準描述參數理論，RR 建立直觀感受。
--->
-
----
-
-# 【主菜 3】Section 3 量表 — 三項一致勝出
-
-<div class="text-center">
-  <img src="/images/fig5-4.png" class="max-h-72 mx-auto rounded shadow" />
-</div>
-
-<table class="w-full text-base mt-4">
+<table class="w-full text-sm mt-4">
   <thead>
     <tr class="bg-blue-100">
-      <th class="p-2 text-left">構面</th>
-      <th class="p-2">RR 組</th>
-      <th class="p-2">Colab 組</th>
+      <th class="p-2 text-left">任務</th>
+      <th class="p-2">RR 完成率</th>
+      <th class="p-2">Colab 完成率</th>
+      <th class="p-2">RR 時間（分）</th>
+      <th class="p-2">Colab 時間（分）</th>
+      <th class="p-2">時間 p</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="p-2">T1–T3</td><td class="p-2 text-center" colspan="5">兩組接近</td></tr>
+    <tr class="bg-yellow-50"><td class="p-2 font-bold">T4 Heli</td><td class="p-2 text-center">56%</td><td class="p-2 text-center">50%</td><td class="p-2 text-center">17.6</td><td class="p-2 text-center">53.0</td><td class="p-2 text-center font-bold text-red-500">.014 *</td></tr>
+    <tr class="bg-red-50"><td class="p-2 font-bold">T5 Fighter</td><td class="p-2 text-center font-bold">61%</td><td class="p-2 text-center">25%</td><td class="p-2 text-center">20.4</td><td class="p-2 text-center">33.3</td><td class="p-2 text-center font-bold text-red-500">&lt;.001 ***</td></tr>
+  </tbody>
+</table>
+
+<div class="mt-4 text-center text-blue-600">
+  ⇒ RQ2 答案：T1–T3 兩組圖表判讀能力相近；T4 完成率相近但 RR 用時更少
+</div>
+
+<!--
+RQ2 兩組能力接近，但 T4 開始 RR 在時間上明顯較短。
+-->
+
+---
+
+# 主軸 1：學習動機（自評量表）
+
+<div class="text-center">
+  <img src="/images/fig5-4.png" class="max-h-56 mx-auto rounded shadow" />
+</div>
+
+<table class="w-full text-sm mt-3">
+  <thead>
+    <tr class="bg-blue-100">
+      <th class="p-2 text-left">題目</th>
+      <th class="p-2">RR</th>
+      <th class="p-2">Colab</th>
       <th class="p-2">p 值</th>
     </tr>
   </thead>
   <tbody>
-    <tr class="border-b"><td class="p-2">3-2 有信心調整參數</td><td class="p-2 text-center font-bold text-blue-600">4.06</td><td class="p-2 text-center">3.50</td><td class="p-2 text-center">.19</td></tr>
-    <tr class="border-b"><td class="p-2">3-3 視覺化幫助理解</td><td class="p-2 text-center font-bold text-blue-600">4.33</td><td class="p-2 text-center">4.18</td><td class="p-2 text-center">.72</td></tr>
-    <tr class="border-b bg-red-50"><td class="p-2 font-bold">3-4 課後學習動機</td><td class="p-2 text-center font-bold text-blue-600">4.17</td><td class="p-2 text-center">3.33</td><td class="p-2 text-center font-bold text-orange-500">.089 †</td></tr>
+    <tr class="border-b"><td class="p-2">Q1 介面易用</td><td class="p-2 text-center">3.78</td><td class="p-2 text-center">3.92</td><td class="p-2 text-center">n.s.</td></tr>
+    <tr class="border-b"><td class="p-2">Q2 有信心調整參數</td><td class="p-2 text-center font-bold text-blue-600">4.06</td><td class="p-2 text-center">3.50</td><td class="p-2 text-center">.19</td></tr>
+    <tr class="border-b"><td class="p-2">Q3 視覺化幫助理解</td><td class="p-2 text-center font-bold text-blue-600">4.33</td><td class="p-2 text-center">4.18</td><td class="p-2 text-center">.72</td></tr>
+    <tr class="border-b bg-red-50"><td class="p-2 font-bold">Q4 課後學習動機</td><td class="p-2 text-center font-bold text-red-600">4.17</td><td class="p-2 text-center">3.33</td><td class="p-2 text-center font-bold text-red-600">.089 †</td></tr>
+    <tr class="border-b"><td class="p-2">Q5 推薦意願</td><td class="p-2 text-center font-bold text-blue-600">4.17</td><td class="p-2 text-center">3.83</td><td class="p-2 text-center">n.s.</td></tr>
   </tbody>
 </table>
 
+<div class="mt-3 text-center text-red-600 font-bold">
+  Q4 課後學習動機 p = .089 為趨近顯著 ★
+</div>
+
 <!--
-Section 3 三項與 RR 設計訴求對應的問項全部勝出，
-其中課後學習動機 p=.089 趨近顯著。
+平台回饋量表 5 題實際題目。
+Q4 課後學習動機 p=.089 趨近顯著，這是 RR 在動機上的勝出證據。
 -->
 
 ---
 
-# 【主菜 3 補強】NASA-TLX「努力」分項顯著低
+# 主軸 2：輕鬆度（NASA-TLX「努力」分項）
 
 <div class="grid grid-cols-2 gap-8 pt-6">
   <div>
@@ -809,24 +646,103 @@ Section 3 三項與 RR 設計訴求對應的問項全部勝出，
     <div class="bg-blue-50 p-6 rounded">
       <div class="text-2xl font-bold text-blue-700 mb-3">關鍵發現</div>
       <div class="text-base">
-        RR 整體心智負荷略高（資訊密度副作用）<br><br>
-        <span class="font-bold text-red-500">但「努力」分項顯著低於 Colab</span><br>
-        <span class="text-sm opacity-70">呼應開放題的「參數困難」2.5× 結果</span>
+        「努力」分項<br>
+        <span class="font-bold text-red-500">RR 顯著低於 Colab（p = .044）</span><br><br>
+        ⇒ RR 學生主觀上感受到「**輕鬆**」<br>
+        <span class="text-sm opacity-70">呼應開放題參數調整困難比例</span>
       </div>
     </div>
   </div>
 </div>
 
 <!--
-NASA-TLX 拆六分項後「努力」顯著低，呼應開放題的參數困難 2.5× 結果。
+NASA-TLX 拆六分項後「努力」顯著低 — 學生覺得用 RR 比較輕鬆。
 -->
 
 ---
 
-# 【誠實承認】SUS 系統易用性 RR 略低
+# 主軸 3：操作意願（T5 完成率）
+
+<div class="grid grid-cols-2 gap-8 pt-8">
+  <div class="text-center">
+    <div class="text-7xl font-bold text-blue-600">61%</div>
+    <div class="text-xl mt-2">RR 組</div>
+    <div class="opacity-60">11 / 18 完成</div>
+  </div>
+  <div class="text-center">
+    <div class="text-7xl font-bold text-gray-500">25%</div>
+    <div class="text-xl mt-2">Colab 組</div>
+    <div class="opacity-60">3 / 12 完成</div>
+  </div>
+</div>
+
+<div class="mt-12 text-center">
+  <div class="inline-block text-3xl font-bold text-red-500 border-4 border-red-500 px-8 py-2 rounded">
+    2.4 ×
+  </div>
+</div>
+
+<div class="mt-6 text-center text-sm opacity-70">
+  T5 Fighter：不提供任何預設超參數，學生需自主決定 α / γ / ε
+</div>
+
+<!--
+T5 刻意不給任何預設超參數，逼學生自主決策。
+RR 學生明顯更願意嘗試、更願意動手。這就是「操作意願」。
+-->
+
+---
+
+# 主軸 3 補強：開放題「參數調整困難」
+
+<div class="overflow-x-auto pt-4">
+  <table class="w-full text-base">
+    <thead>
+      <tr class="bg-blue-100">
+        <th class="p-3 text-left">主題</th>
+        <th class="p-3">RR 組</th>
+        <th class="p-3">Colab 組</th>
+        <th class="p-3">Colab / RR 倍率</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="bg-red-50 font-bold">
+        <td class="p-3">參數調整困難</td>
+        <td class="p-3 text-center">3 / 18 (17%)</td>
+        <td class="p-3 text-center">5 / 12 (42%)</td>
+        <td class="p-3 text-center text-red-500 text-xl">2.5 ×</td>
+      </tr>
+      <tr class="bg-red-50 font-bold">
+        <td class="p-3">圖表判讀困難</td>
+        <td class="p-3 text-center">3 / 18 (17%)</td>
+        <td class="p-3 text-center">5 / 12 (42%)</td>
+        <td class="p-3 text-center text-red-500 text-xl">2.5 ×</td>
+      </tr>
+      <tr class="border-b">
+        <td class="p-3">表示無困難</td>
+        <td class="p-3 text-center">33%</td>
+        <td class="p-3 text-center">17%</td>
+        <td class="p-3 text-center">0.5 ×</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="mt-4 text-center text-blue-600">
+  學生自陳「最困難的部分」：兩個主題 Colab 都是 RR 的 2.5 倍
+</div>
+
+<!--
+請學生自己寫「最困難的部分」，編碼後得到驚人發現。
+參數調整困難 + 圖表判讀困難，Colab 都是 RR 的 2.5 倍。
+-->
+
+---
+
+# SUS 系統易用性
 
 <div class="text-center">
-  <img src="/images/fig5-5.png" class="max-h-80 mx-auto rounded shadow" />
+  <img src="/images/fig5-5.png" class="max-h-72 mx-auto rounded shadow" />
 </div>
 
 <div class="grid grid-cols-2 gap-8 mt-4">
@@ -838,112 +754,26 @@ NASA-TLX 拆六分項後「努力」顯著低，呼應開放題的參數困難 2
   </div>
 </div>
 
-<!--
-SUS 不掩飾：RR 59.0、Colab 73.5。
-但 RR 標準差大（19.8 vs 14.1），兩極化反應。
--->
-
----
-
-# SUS 結果的兩個合理解讀
-
-<div class="grid grid-cols-2 gap-6 pt-8">
-  <div class="border-l-4 border-blue-500 pl-4">
-    <h3 class="font-bold text-blue-600 mb-3">解讀 1：Colab 熟悉度紅利</h3>
-    <p class="text-sm">
-      多數學生已使用過 Colab，SUS 量表難以區分：<br>
-      <span class="opacity-70">「系統設計品質好」vs「使用者已熟悉系統」</span>
-    </p>
+<div class="grid grid-cols-2 gap-6 pt-4 text-sm">
+  <div class="border-l-4 border-blue-500 pl-3">
+    <span class="font-bold">解讀 1：</span> Colab 是學生已熟工具，SUS 難區分「系統好」與「使用者熟」
   </div>
-  <div class="border-l-4 border-orange-500 pl-4">
-    <h3 class="font-bold text-orange-600 mb-3">解讀 2：RR 資訊密度副作用</h3>
-    <p class="text-sm">
-      課堂觀察證實 RR 視覺化資訊密度較高：<br>
-      <span class="opacity-70">部分學生資訊過載 → 難以聚焦核心目標</span><br>
-      <span class="opacity-70">已導出明確改進方向（教室模式、分階段視覺化）</span>
-    </p>
-  </div>
-</div>
-
-<div class="mt-8 text-center text-blue-600">
-  ⇒ 此非否定 RR 設計，而是揭示「視覺化豐富 vs 易上手」的取捨
-</div>
-
-<!--
-兩種合理解讀：Colab 熟悉度紅利 + RR 資訊密度副作用。
-已導出明確改進方向，不是平台失敗。
--->
-
----
-
-# 課堂觀察的補強證據
-
-<div class="grid grid-cols-2 gap-8 pt-6">
-  <div class="border rounded p-4">
-    <h3 class="font-bold mb-3">RR 組：Day 1 出席流失較高</h3>
-    <div class="text-3xl font-bold text-red-500 text-center mb-2">31%</div>
-    <div class="text-sm opacity-70">
-      Day 1 → Day 2 出席流失<br>
-      （Colab 13%）<br><br>
-      <span class="text-xs">反映自主操作模式下的分心風險</span>
-    </div>
-  </div>
-  <div class="border rounded p-4">
-    <h3 class="font-bold mb-3">Colab 組：Day 1 同儕討論活絡</h3>
-    <div class="text-3xl text-center mb-2">✓</div>
-    <div class="text-sm opacity-70">
-      兩組課堂中唯一「活絡」勾選<br><br>
-      <span class="text-xs">原因：程式碼錯誤需要互相協助</span><br>
-      <span class="text-xs">→ RR 設計可學習之處（同儕互動機制）</span>
-    </div>
+  <div class="border-l-4 border-orange-500 pl-3">
+    <span class="font-bold">解讀 2：</span> RR 早期版本資訊密度確實偏高，已導出明確改進方向
   </div>
 </div>
 
 <!--
-課堂觀察提供量化指標看不到的補強：
-RR Day 1 流失較高，反映自主操作模式下分心風險；
-Colab 同儕討論活絡，是平台設計可學習之處。
+SUS 兩極化反應，部分學生極喜歡部分學生覺得難。
+這也指向具體的平台改進方向。
 -->
 
 ---
 layout: section
 ---
 
-# Part 5.
-# 論述收束與貢獻
-
----
-
-# 凸顯 RR 優勢的四層論述
-
-<div class="flex justify-center pt-4">
-  <div class="space-y-3 text-center">
-    <div class="bg-gray-200 px-8 py-3 rounded shadow w-96">
-      <span class="font-bold">① 誠實承認</span><br>
-      <span class="text-sm">Colab 概念顯著、SUS 勝出</span>
-    </div>
-    <div class="bg-yellow-200 px-12 py-3 rounded shadow w-[28rem]">
-      <span class="font-bold">② 反向印證 Colab 未被放水</span><br>
-      <span class="text-sm">Colab 教學設計完整且公平</span>
-    </div>
-    <div class="bg-orange-200 px-16 py-3 rounded shadow w-[34rem]">
-      <span class="font-bold">③ 在對手亦表現良好的前提下，RR 仍逆轉</span><br>
-      <span class="text-sm">T5 雙重指標 + 開放題 2.5× + 量表三項一致</span>
-    </div>
-    <div class="bg-red-200 px-20 py-3 rounded shadow w-[40rem]">
-      <span class="font-bold">④ 可復用性與未來性</span><br>
-      <span class="text-sm">教師易上手、平台可持續演進</span>
-    </div>
-  </div>
-</div>
-
-<!--
-總結邏輯（被問貢獻時的標準答案）：
-1. Colab 概念顯著、SUS 勝出，承認。
-2. 這反向證明Colab 組不是稻草人。
-3. 在對手亦表現良好的前提下，RR 仍於 T5 明顯逆轉。
-4. 平台還具可復用性與未來演進性。
--->
+# Part 6.
+# 結論與未來工作
 
 ---
 
@@ -982,12 +812,12 @@ layout: section
 </div>
 
 <!--
-本研究經驗推廣到一般視覺化互動式教學平台，整理五點設計建議。
+本研究經驗推廣到一般視覺化互動式教學平台的五點建議。
 -->
 
 ---
 
-# 研究貢獻三點
+# 研究貢獻
 
 <div class="space-y-6 pt-8">
   <div class="flex items-start gap-4">
@@ -995,17 +825,8 @@ layout: section
     <div>
       <div class="font-bold text-lg">實證貢獻</div>
       <div class="text-sm opacity-80">
-        實證視覺化互動式 RL 平台在不犧牲概念理解的前提下，於遷移能力與操作直覺感上產生獨特優勢
-      </div>
-    </div>
-  </div>
-  <div class="flex items-start gap-4">
-    <div class="text-4xl">🔬</div>
-    <div>
-      <div class="font-bold text-lg">方法學貢獻</div>
-      <div class="text-sm opacity-80">
-        提出「完成率 + 完成時間」雙指標評量法，可推廣到其他平台類教學工具<br>
-        + 七層次 Treatment Fidelity 設計範例
+        RR 平台在學習動機（Q4 課後動機 4.17 vs 3.33, p=.089）、輕鬆度（NASA-TLX 努力 5.50 vs 6.83, p=.044）、操作意願（T5 完成率 61% vs 25%）三項皆勝出，
+        且在 Colab 組於理論知識測驗達顯著進步之前提下，仍能於上述三項展現獨立貢獻
       </div>
     </div>
   </div>
@@ -1014,14 +835,15 @@ layout: section
     <div>
       <div class="font-bold text-lg">設計貢獻</div>
       <div class="text-sm opacity-80">
-        整理五點對未來視覺化互動式教學平台設計者之具體建議
+        整理五點對未來視覺化互動式教學平台設計者之具體建議，
+        並提供 RR 平台原始碼與 18 支標準化教學影片作為可復用資源
       </div>
     </div>
   </div>
 </div>
 
 <!--
-三項貢獻：實證 + 方法學 + 設計建議。
+兩項貢獻：實證 + 設計建議。
 -->
 
 ---
@@ -1035,11 +857,11 @@ layout: section
   </div>
   <div class="border-l-4 border-orange-400 pl-4">
     <div class="font-bold">跨班級不可控差異</div>
-    <div class="text-sm opacity-70">雖採 Treatment Fidelity 七層次標準化，仍可能存在班級文化等難測因素</div>
+    <div class="text-sm opacity-70">兩組分屬不同班級，仍可能存在班級文化等難測因素</div>
   </div>
   <div class="border-l-4 border-orange-400 pl-4">
     <div class="font-bold">未測長期保留度</div>
-    <div class="text-sm opacity-70">僅捕捉即時學習成效，長期記憶與技能保留待後續研究</div>
+    <div class="text-sm opacity-70">僅捕捉即時學習成效，長期保留待後續研究</div>
   </div>
   <div class="border-l-4 border-orange-400 pl-4">
     <div class="font-bold">範圍限定</div>
@@ -1048,8 +870,7 @@ layout: section
 </div>
 
 <!--
-研究限制：樣本偏小、跨班差異、未測長期保留度。
-結論收斂在「大學資工系」實證範圍。
+研究限制四點。結論收斂在大學資工系。
 -->
 
 ---
@@ -1080,8 +901,7 @@ layout: section
 </div>
 
 <!--
-未來工作：教室模式、雙旗艦平台、長期追蹤研究。
-論文完成不等於 RR 平台的終點。
+未來工作兩個方向：教學設計面 + 平台演進面。
 -->
 
 ---
@@ -1105,8 +925,7 @@ class: text-center
 <div class="mt-4 text-sm opacity-60">敬請各位老師指教</div>
 
 <!--
-感謝黃怡錚老師指導、張鈞博助教協助、兩位授課教師、受試學生。
-請各位老師指教。
+感謝。請各位老師指教。
 -->
 
 ---
@@ -1145,24 +964,20 @@ class: bg-gray-100
 
 ---
 
-# B02. 統計檢定方法詳述
+# B02. 統計檢定方法
 
 <div class="space-y-4 pt-6">
   <div>
     <h3 class="font-bold">組內前後測比較</h3>
-    <div class="text-sm opacity-70">配對 t-test（paired t-test，scipy.stats.ttest_rel）</div>
+    <div class="text-sm opacity-70">配對 t-test（scipy.stats.ttest_rel）</div>
   </div>
   <div>
     <h3 class="font-bold">組間獨立樣本比較</h3>
-    <div class="text-sm opacity-70">Welch's t-test（equal_var=False，scipy.stats.ttest_ind），不假設兩組變異數相等</div>
+    <div class="text-sm opacity-70">Welch's t-test（equal_var=False，scipy.stats.ttest_ind）</div>
   </div>
   <div>
     <h3 class="font-bold">類別變項比較</h3>
     <div class="text-sm opacity-70">卡方檢定（chi-square test）— 完成率比較</div>
-  </div>
-  <div>
-    <h3 class="font-bold">效應量</h3>
-    <div class="text-sm opacity-70">Cohen's d（小 0.2 / 中 0.5 / 大 0.8）</div>
   </div>
   <div>
     <h3 class="font-bold">顯著性閾值</h3>
@@ -1172,7 +987,7 @@ class: bg-gray-100
 
 ---
 
-# B03. rr_envs.py 對齊細節
+# B03. rr_envs.py 任務環境對齊
 
 <table class="w-full text-sm mt-4">
   <thead>
@@ -1183,10 +998,10 @@ class: bg-gray-100
     </tr>
   </thead>
   <tbody>
-    <tr class="border-b"><td class="p-2 font-bold">T1 Maze 1D</td><td class="p-2">線性路徑、終點 +1</td><td class="p-2">同 reward function，Box(low=0, high=10) 狀態空間</td></tr>
-    <tr class="border-b"><td class="p-2 font-bold">T2 Maze 2D</td><td class="p-2">cutX × cutY 網格</td><td class="p-2">同網格、同稀疏 reward 結構</td></tr>
-    <tr class="border-b"><td class="p-2 font-bold">T3 Dino</td><td class="p-2">連續狀態 + 跳躍動作</td><td class="p-2">同連續狀態空間 + 動作空間 {跳, 不跳}</td></tr>
-    <tr class="border-b"><td class="p-2 font-bold">T4 Heli</td><td class="p-2">速度+位置雙維度</td><td class="p-2">同維度，episode termination 條件一致</td></tr>
+    <tr class="border-b"><td class="p-2 font-bold">T1 MAB</td><td class="p-2">多臂吃角子老虎、機率分佈</td><td class="p-2">同 reward 函式、同動作空間</td></tr>
+    <tr class="border-b"><td class="p-2 font-bold">T2 Maze 1D</td><td class="p-2">線性路徑、終點 +1</td><td class="p-2">同 reward function、Box 狀態空間</td></tr>
+    <tr class="border-b"><td class="p-2 font-bold">T3 Maze 2D</td><td class="p-2">cutX × cutY 網格</td><td class="p-2">同網格、同稀疏 reward 結構</td></tr>
+    <tr class="border-b"><td class="p-2 font-bold">T4 Heli</td><td class="p-2">速度+位置雙維度</td><td class="p-2">同維度，episode termination 一致</td></tr>
     <tr class="border-b bg-yellow-50"><td class="p-2 font-bold">T5 Fighter</td><td class="p-2">多動作空間、無預設超參數</td><td class="p-2">同設計，刻意保留「無預設」特性</td></tr>
   </tbody>
 </table>
@@ -1201,25 +1016,24 @@ class: bg-gray-100
 
 <div class="grid grid-cols-2 gap-6 pt-4">
   <div>
-    <h3 class="font-bold mb-3 text-blue-600">兩組共用（6 支）</h3>
+    <h3 class="font-bold mb-3 text-blue-600">兩組共用（V0–V5，共 6 支）</h3>
     <ul class="text-sm space-y-1">
-      <li>1. RL 基本概念 — Agent / Environment</li>
-      <li>2. State / Action / Reward</li>
-      <li>3. Episode 與 Episodic Task</li>
-      <li>4. Q-Learning 概念</li>
-      <li>5. ε-greedy 探索策略</li>
-      <li>6. Hyperparameters 介紹</li>
+      <li>V0 SAR + Episode</li>
+      <li>V1 ε-greedy + 三個超參數</li>
+      <li>V2 Q-learning 機制</li>
+      <li>V3 Q-table 熱力圖判讀</li>
+      <li>V4 訓練曲線判讀</li>
+      <li>V5 自主決策設定</li>
     </ul>
   </div>
   <div>
     <h3 class="font-bold mb-3 text-orange-600">各組各 6 支</h3>
     <div class="text-sm space-y-1">
-      <div><span class="font-bold">RR 組：</span>平台操作 6 支</div>
-      <div><span class="font-bold">Colab 組：</span>Gymnasium 環境設定 6 支</div>
+      <div><span class="font-bold">RR 組：</span>A0–A5 平台操作</div>
+      <div><span class="font-bold">Colab 組：</span>B0–B5 Colab 操作</div>
     </div>
     <div class="mt-3 text-xs opacity-70">
-      所有影片經 ffmpeg 抽幀逐張視覺驗收<br>
-      （Frame Review Loop SOP）
+      所有影片經 ffmpeg 抽幀逐張視覺驗收
     </div>
   </div>
 </div>
@@ -1241,16 +1055,9 @@ class: bg-gray-100
     <li>Ryan, R. M., & Deci, E. L. (2000). Self-determination theory.</li>
     <li>Hattie, J., & Timperley, H. (2007). The power of feedback.</li>
   </ul>
-  <div class="mt-3"><span class="font-bold">方法學：</span></div>
-  <ul class="ml-4 space-y-1 opacity-80">
-    <li>Mowbray et al. (2003). Fidelity criteria.</li>
-    <li>Shadish, Cook, & Campbell (2002). Quasi-Experimental Designs.</li>
-    <li>Cohen, J. (1988). Statistical Power Analysis.</li>
-  </ul>
   <div class="mt-3"><span class="font-bold">K-12 RL 教學案例：</span></div>
   <ul class="ml-4 space-y-1 opacity-80">
     <li>Dietz et al. (2022). ARtonomous. IDC '22.</li>
-    <li>Zhang et al. (2022). An Interactive Robot Platform for K-12 RL. RiE 2021.</li>
-    <li>Zhang et al. (2023). Introducing RL to K-12 with Robots and AR. RiE 2023.</li>
+    <li>Zhang et al. (2022, 2023). RL 教學 K-12 案例. RiE 系列。</li>
   </ul>
 </div>

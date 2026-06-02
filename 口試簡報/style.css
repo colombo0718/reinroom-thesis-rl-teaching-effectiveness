@@ -2,3 +2,20 @@
 #slidev-goto-dialog {
   display: none !important;
 }
+
+/* 全頁右下角頁碼（透過 CSS counter，輸出 PDF 時也保留） */
+.slidev-page {
+  counter-increment: slidev-page;
+}
+.slidev-page::after {
+  content: counter(slidev-page);
+  position: absolute;
+  bottom: 8px;
+  right: 18px;
+  font-size: 10px;
+  color: #888;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 100;
+}
+
