@@ -795,16 +795,15 @@ def add_cover_page(doc):
     add_page_break(doc)
 
 def add_title_page(doc):
-    """元智格式 A 附件二 書名頁（R-G-A2）。"""
+    """元智格式 A 附件二 書名頁（R-G-A2）。整頁須一頁容納。"""
     M = THESIS_META
-    _add_centered_line(doc, '', 14, before_pt=40)
-    _add_centered_line(doc, M['title_zh'], 18, bold=True, after_pt=12)
-    _add_centered_line(doc, M['title_en'].upper(), 14, bold=True, after_pt=40)
+    _add_centered_line(doc, M['title_zh'], 18, bold=True, before_pt=24, after_pt=6, line_mult=1.2)
+    _add_centered_line(doc, M['title_en'].upper(), 14, bold=True, after_pt=20, line_mult=1.2)
 
     # 研究生 / 指導教授（中英對照）
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    set_spacing(p, 1.5, after_pt=6)
+    set_spacing(p, 1.2, after_pt=4)
     r1 = p.add_run(f"研  究  生：{M['student_zh']}")
     set_font(r1, 14)
     r2 = p.add_run(f"      Student：{M['student_en']}")
@@ -812,29 +811,29 @@ def add_title_page(doc):
 
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    set_spacing(p, 1.5, after_pt=40)
+    set_spacing(p, 1.2, after_pt=20)
     r1 = p.add_run(f"指 導 教 授：{M['advisor_zh']}")
     set_font(r1, 14)
     r2 = p.add_run(f"      Advisor：{M['advisor_en']}")
     set_font(r2, 14)
 
-    _add_centered_line(doc, '元  智  大  學', 16, bold=True, after_pt=8)
-    _add_centered_line(doc, M['dept_zh'], 16, bold=True, after_pt=8)
-    _add_centered_line(doc, f"{M['degree_zh']}  論  文", 16, bold=True, after_pt=40)
+    _add_centered_line(doc, '元  智  大  學', 16, bold=True, after_pt=4, line_mult=1.2)
+    _add_centered_line(doc, M['dept_zh'], 16, bold=True, after_pt=4, line_mult=1.2)
+    _add_centered_line(doc, f"{M['degree_zh']}  論  文", 16, bold=True, after_pt=18, line_mult=1.2)
 
-    _add_centered_line(doc, 'A Thesis', 14, after_pt=4)
-    _add_centered_line(doc, f"Submitted to Department of {M['dept_en']}", 14, after_pt=4)
-    _add_centered_line(doc, M['college_en'], 14, after_pt=4)
-    _add_centered_line(doc, 'Yuan Ze University', 14, after_pt=4)
-    _add_centered_line(doc, 'in Partial Fulfillment of the Requirements', 14, after_pt=4)
-    _add_centered_line(doc, 'for the Degree of', 14, after_pt=4)
-    _add_centered_line(doc, M['degree_en'], 14, after_pt=4)
-    _add_centered_line(doc, 'in', 14, after_pt=4)
-    _add_centered_line(doc, M['dept_en'], 14, after_pt=20)
+    _add_centered_line(doc, 'A Thesis', 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, f"Submitted to Department of {M['dept_en']}", 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, M['college_en'], 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, 'Yuan Ze University', 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, 'in Partial Fulfillment of the Requirements', 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, 'for the Degree of', 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, M['degree_en'], 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, 'in', 14, after_pt=2, line_mult=1.2)
+    _add_centered_line(doc, M['dept_en'], 14, after_pt=10, line_mult=1.2)
 
-    _add_centered_line(doc, f"{M['month_en']} {M['year_ad']}", 14, after_pt=8)
-    _add_centered_line(doc, M['location_en'], 14, after_pt=20)
-    _add_centered_line(doc, f"中華民國　{M['year_roc']}　年　{M['month_zh']}　月", 14)
+    _add_centered_line(doc, f"{M['month_en']} {M['year_ad']}", 14, after_pt=4, line_mult=1.2)
+    _add_centered_line(doc, M['location_en'], 14, after_pt=10, line_mult=1.2)
+    _add_centered_line(doc, f"中華民國　{M['year_roc']}　年　{M['month_zh']}　月", 14, line_mult=1.2)
     add_page_break(doc)
 
 def add_verification_page(doc):
