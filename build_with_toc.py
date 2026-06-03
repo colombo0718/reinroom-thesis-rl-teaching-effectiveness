@@ -99,22 +99,27 @@ def collect_toc_entries():
 
 
 def build_search_index():
-    """條目 → 搜尋字串 + 對應的 JSON key（與 build_thesis 的 _toc_page 對齊）。"""
+    """條目 → 搜尋字串 + 對應的 JSON key。
+    回傳 list of (key, search_text) 保持目錄順序，
+    讓 scan_for_entries 可按順序遞進搜尋（避免重名 sub-subsection 抓錯位置）。
+    """
     chap_e, fig_e, table_e = collect_toc_entries()
-    index = {}   # {json_key: search_text}
-    for level, text in chap_e:
-        index[f'CHAP::{text}'] = text
+    index = []   # [(json_key, search_text)]
+    for level, text, seq in chap_e:
+        index.append((f'CHAP::{seq}::{text}', text))
     for num, caption in fig_e:
-        index[f'FIG::{caption[:40]}'] = caption[:20]
+        index.append((f'FIG::{caption[:40]}', caption[:20]))
     for num, caption in table_e:
-        index[f'TABLE::{caption[:40]}'] = caption[:20]
+        index.append((f'TABLE::{caption[:40]}', caption[:20]))
     return index
 
 
-def scan_for_entries(pages, index):
-    """逐條目掃 PDF，第一次出現就記錄那頁的本文頁碼。
-    跳過目錄頁本身，從第一個「第一章」標題頁開始。
-    本文頁碼 = PDF seq − body_start + 1（不用 footer regex，可靠）。
+def scan_for_entries(pages, index_ordered):
+    """掃 PDF，按目錄順序循序搜尋每個條目。
+    重點：每個條目從「上一個條目找到的頁」之後開始找，避免重名
+    （例如多章節都有「伍、小結」）抓到錯誤位置。
+
+    index_ordered: list of (key, search_text)，順序需與目錄順序一致
     """
     body_start = 0
     for idx, vis, text in pages:
@@ -123,20 +128,40 @@ def scan_for_entries(pages, index):
             break
     print(f"   本文起始：PDF seq {body_start}（本文頁碼 1）")
 
-    found = {}
     body_pages = [(idx, normalize(text))
                   for idx, vis, text in pages
                   if idx >= body_start]
-    for key, search_text in index.items():
-        if not search_text:
-            continue
-        target = normalize(search_text)
-        if not target:
-            continue
-        for idx, ntext in body_pages:
-            if target in ntext:
+
+    found = {}
+    # 三個類別各自循序搜尋（每個類別有自己的 cursor）：
+    # 章節依目錄順序在本文出現；圖、表也各自依編號順序出現。
+    for category in ('CHAP', 'FIG', 'TABLE'):
+        cursor = 0
+        for key, search_text in index_ordered:
+            if not key.startswith(f'{category}::'):
+                continue
+            if not search_text:
+                continue
+            target = normalize(search_text)
+            if not target:
+                continue
+            hit = None
+            for i in range(cursor, len(body_pages)):
+                idx, ntext = body_pages[i]
+                if target in ntext:
+                    hit = (i, idx)
+                    break
+            if hit is None:
+                # fallback：從頭找（理論上不該發生，遇到代表搜尋字串對不上）
+                for i in range(0, cursor):
+                    idx, ntext = body_pages[i]
+                    if target in ntext:
+                        hit = (i, idx)
+                        break
+            if hit is not None:
+                i, idx = hit
                 found[key] = str(idx - body_start + 1)
-                break
+                cursor = i  # 下一條目從這頁起（允許同頁多條目）
     return found
 
 
@@ -159,10 +184,10 @@ def main():
     print(f"▶ 條目總數 {len(index)}，找到頁碼 {len(pages_map)}")
 
     if len(pages_map) < len(index):
-        missing = [k for k in index if k not in pages_map]
+        missing = [(k, s) for k, s in index if k not in pages_map]
         print(f"⚠ 缺 {len(missing)} 條，前 5 個：")
-        for k in missing[:5]:
-            print(f"   {k}  →  搜：{index[k]!r}")
+        for k, s in missing[:5]:
+            print(f"   {k}  →  搜：{s!r}")
 
     with open(TOC_JSON, 'w', encoding='utf-8') as f:
         json.dump(pages_map, f, ensure_ascii=False, indent=2)

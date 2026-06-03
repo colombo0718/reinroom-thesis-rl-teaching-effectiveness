@@ -872,22 +872,28 @@ def add_verification_page(doc):
 
 
 def _collect_toc_entries(events, fig_registry, table_registry):
-    """掃 events 收集三組目錄條目（不含頁碼）。"""
-    chap_entries = []     # [(level, text)]，level 1=章 / 2=節 / 3=小節
+    """掃 events 收集三組目錄條目（不含頁碼）。
+    每條目附 sequence number 區分（如多章節都有「伍、小結」）。
+    """
+    chap_entries = []     # [(level, text, seq)]
     fig_entries  = []     # [(num, caption_text)]
     table_entries = []
+    chap_seq = 0
     fig_counter = 0
     tab_counter = 0
 
     for chapter_title, kind, content in events:
         if kind == '__chapter_start__':
-            chap_entries.append((1, chapter_title))
+            chap_seq += 1
+            chap_entries.append((1, chapter_title, chap_seq))
         elif kind == 'section':
             text = convert_section_text(content) if CONVERT_SECTION_NUMBERING else content
-            chap_entries.append((2, text))
+            chap_seq += 1
+            chap_entries.append((2, text, chap_seq))
         elif kind == 'subsection':
             text = convert_subsection_text(content) if CONVERT_SUBSECTION_NUMBERING else content
-            chap_entries.append((3, text))
+            chap_seq += 1
+            chap_entries.append((3, text, chap_seq))
         elif kind == 'figcaption':
             fig_counter += 1
             # 用 fig_registry 把原號轉成全文編號顯示
@@ -939,7 +945,7 @@ def add_static_toc(doc, title, entries, kind='chap'):
         )
 
         if kind == 'chap':
-            level, text = item
+            level, text, seq = item
             indent = (level - 1) * 2   # 章=0 / 節=2 / 小節=4 字
             if indent:
                 pPr = p._p.get_or_add_pPr()
@@ -950,7 +956,7 @@ def add_static_toc(doc, title, entries, kind='chap'):
             size = 14 if level == 1 else 13
             run = p.add_run(text)
             set_font(run, size, bold=(level == 1))
-            page_str = _toc_page(f'CHAP::{text}')
+            page_str = _toc_page(f'CHAP::{seq}::{text}')
             run_p = p.add_run('\t' + page_str)
             set_font(run_p, size, bold=(level == 1))
         else:
