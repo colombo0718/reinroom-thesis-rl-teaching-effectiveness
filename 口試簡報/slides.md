@@ -353,15 +353,9 @@ RR 是我自行開發的純前端 RL 教學平台，網址打開就能用。
 
 # 核心特色 3：分析 Tab — 看見行為成因
 
-<div class="grid grid-cols-2 gap-4">
-  <div>
-    <img src="/images/fig3-8.png" class="rounded shadow" />
-    <div class="text-center text-xs mt-1 opacity-60">上排：動作色環 + 三柱圖（Q 值/ε-greedy/Softmax）</div>
-  </div>
-  <div>
-    <img src="/images/fig3-9.png" class="rounded shadow" />
-    <div class="text-center text-xs mt-1 opacity-60">中排：狀態價值折線 + 動作選擇熱力圖</div>
-  </div>
+<div class="text-center">
+  <img src="/images/fig3-analysis-top4.png" class="max-h-80 mx-auto rounded shadow-lg" />
+  <div class="text-sm mt-2 opacity-60">分析 Tab：上排（動作色環 + 三柱圖）+ 中排（狀態價值折線 + 動作選擇熱力圖）</div>
 </div>
 
 <div class="text-center text-lg mt-4 text-blue-600">
