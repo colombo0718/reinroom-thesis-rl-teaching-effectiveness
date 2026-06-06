@@ -266,11 +266,11 @@ layout: section
 
 # 平台定位
 
-<div class="grid grid-cols-2 gap-8">
-  <div>
-    <img src="/images/fig3-1.png" class="rounded shadow-lg" />
+<div class="grid grid-cols-5 gap-6 items-center">
+  <div class="col-span-3">
+    <img src="/images/fig3-1.png" class="w-full rounded shadow-lg" />
   </div>
-  <div class="flex flex-col justify-center">
+  <div class="col-span-2 flex flex-col justify-center">
     <h2 class="text-2xl font-bold mb-4">純前端、零安裝</h2>
     <ul class="space-y-2 text-lg">
       <li>🌐 瀏覽器打開網址即用</li>
@@ -536,10 +536,10 @@ class: bg-blue-50
 
 <div class="grid grid-cols-2 gap-8 mt-4">
   <div class="text-center">
-    <span class="text-blue-500 font-bold">RR 組</span>：pre 5.50 → post 6.40（n.s.）
+    <span class="text-blue-500 font-bold">RR 組</span>：pre 5.54 → post 6.22（n.s.）
   </div>
   <div class="text-center">
-    <span class="text-gray-700 font-bold">Colab 組</span>：pre 5.00 → post 6.92（p = .01 *）
+    <span class="text-gray-700 font-bold">Colab 組</span>：pre 4.87 → post 6.92（p = .01 *）
   </div>
 </div>
 
@@ -556,30 +556,32 @@ RQ1：兩組都進步，Colab 組於理論知識測驗達顯著進步。
 
 # RQ2 任務完成率全貌
 
-<div class="text-center pt-2">
+<div class="text-center">
   <img src="/images/fig5-3.png" class="max-h-72 mx-auto rounded shadow" />
 </div>
 
-<table class="w-full text-sm mt-4">
+<div class="compact-table">
+<table class="w-full mt-2">
   <thead>
     <tr class="bg-blue-100">
-      <th class="p-2 text-left">任務</th>
-      <th class="p-2">RR 完成率</th>
-      <th class="p-2">Colab 完成率</th>
-      <th class="p-2">RR 時間（分）</th>
-      <th class="p-2">Colab 時間（分）</th>
-      <th class="p-2">時間 p</th>
+      <th class="px-2 py-0.5 text-left">任務</th>
+      <th class="px-2 py-0.5">RR 完成率</th>
+      <th class="px-2 py-0.5">Colab 完成率</th>
+      <th class="px-2 py-0.5">RR 時間（分）</th>
+      <th class="px-2 py-0.5">Colab 時間（分）</th>
+      <th class="px-2 py-0.5">時間 p</th>
     </tr>
   </thead>
   <tbody>
-    <tr><td class="p-2">T1–T3</td><td class="p-2 text-center" colspan="5">兩組接近</td></tr>
-    <tr class="bg-yellow-50"><td class="p-2 font-bold">T4 Heli</td><td class="p-2 text-center">56%</td><td class="p-2 text-center">50%</td><td class="p-2 text-center">17.6</td><td class="p-2 text-center">53.0</td><td class="p-2 text-center font-bold text-red-500">.014 *</td></tr>
-    <tr class="bg-red-50"><td class="p-2 font-bold">T5 Fighter</td><td class="p-2 text-center font-bold">61%</td><td class="p-2 text-center">25%</td><td class="p-2 text-center">20.4</td><td class="p-2 text-center">33.3</td><td class="p-2 text-center font-bold text-red-500">&lt;.001 ***</td></tr>
+    <tr><td class="px-2 py-0.5">T1–T3</td><td class="px-2 py-0.5 text-center" colspan="5">完成率互有高低（差距 0–22%）、時間兩組接近</td></tr>
+    <tr class="bg-yellow-50"><td class="px-2 py-0.5 font-bold">T4 Heli</td><td class="px-2 py-0.5 text-center">56%</td><td class="px-2 py-0.5 text-center">50%</td><td class="px-2 py-0.5 text-center">17.6</td><td class="px-2 py-0.5 text-center">53.0</td><td class="px-2 py-0.5 text-center font-bold text-red-500">.014 *</td></tr>
+    <tr class="bg-red-50"><td class="px-2 py-0.5 font-bold">T5 Fighter</td><td class="px-2 py-0.5 text-center font-bold">61%</td><td class="px-2 py-0.5 text-center">25%</td><td class="px-2 py-0.5 text-center">20.4</td><td class="px-2 py-0.5 text-center">33.3</td><td class="px-2 py-0.5 text-center font-bold text-red-500">&lt;.001 ***</td></tr>
   </tbody>
 </table>
+</div>
 
-<div class="mt-4 text-center text-blue-600">
-  ⇒ RQ2 答案：T1–T3 兩組圖表判讀能力相近；T4 完成率相近但 RR 用時更少
+<div class="mt-1 text-center text-[10px] text-blue-600">
+  ⇒ RQ2 答案：T1–T3 兩組能力相近；T4 完成率近但 RR 用時顯著較少；T5 為主軸 3 鋪墊
 </div>
 
 <!--
@@ -591,28 +593,30 @@ RQ2 兩組能力接近，但 T4 開始 RR 在時間上明顯較短。
 # 主軸 1：學習動機（自評量表）
 
 <div class="text-center">
-  <img src="/images/fig5-4.png" class="max-h-56 mx-auto rounded shadow" />
+  <img src="/images/fig5-4.png" class="max-h-64 mx-auto rounded shadow" />
 </div>
 
-<table class="w-full text-sm mt-3">
+<div class="compact-table">
+<table class="w-full mt-2">
   <thead>
     <tr class="bg-blue-100">
-      <th class="p-2 text-left">題目</th>
-      <th class="p-2">RR</th>
-      <th class="p-2">Colab</th>
-      <th class="p-2">p 值</th>
+      <th class="px-2 py-0.5 text-left">題目</th>
+      <th class="px-2 py-0.5">RR</th>
+      <th class="px-2 py-0.5">Colab</th>
+      <th class="px-2 py-0.5">p 值</th>
     </tr>
   </thead>
   <tbody>
-    <tr class="border-b"><td class="p-2">Q1 介面易用</td><td class="p-2 text-center">3.78</td><td class="p-2 text-center">3.92</td><td class="p-2 text-center">n.s.</td></tr>
-    <tr class="border-b"><td class="p-2">Q2 有信心調整參數</td><td class="p-2 text-center font-bold text-blue-600">4.06</td><td class="p-2 text-center">3.50</td><td class="p-2 text-center">.19</td></tr>
-    <tr class="border-b"><td class="p-2">Q3 視覺化幫助理解</td><td class="p-2 text-center font-bold text-blue-600">4.33</td><td class="p-2 text-center">4.18</td><td class="p-2 text-center">.72</td></tr>
-    <tr class="border-b bg-red-50"><td class="p-2 font-bold">Q4 課後學習動機</td><td class="p-2 text-center font-bold text-red-600">4.17</td><td class="p-2 text-center">3.33</td><td class="p-2 text-center font-bold text-red-600">.089 †</td></tr>
-    <tr class="border-b"><td class="p-2">Q5 推薦意願</td><td class="p-2 text-center font-bold text-blue-600">4.17</td><td class="p-2 text-center">3.83</td><td class="p-2 text-center">n.s.</td></tr>
+    <tr class="border-b"><td class="px-2 py-0.5">Q1 介面易用</td><td class="px-2 py-0.5 text-center">3.83</td><td class="px-2 py-0.5 text-center">4.18</td><td class="px-2 py-0.5 text-center">n.s.</td></tr>
+    <tr class="border-b"><td class="px-2 py-0.5">Q2 有信心調整參數</td><td class="px-2 py-0.5 text-center font-bold text-blue-600">4.06</td><td class="px-2 py-0.5 text-center">3.50</td><td class="px-2 py-0.5 text-center">.19</td></tr>
+    <tr class="border-b"><td class="px-2 py-0.5">Q3 視覺化幫助理解</td><td class="px-2 py-0.5 text-center font-bold text-blue-600">4.33</td><td class="px-2 py-0.5 text-center">4.18</td><td class="px-2 py-0.5 text-center">.72</td></tr>
+    <tr class="border-b bg-red-50"><td class="px-2 py-0.5 font-bold">Q4 課後學習動機</td><td class="px-2 py-0.5 text-center font-bold text-red-600">4.17</td><td class="px-2 py-0.5 text-center">3.33</td><td class="px-2 py-0.5 text-center font-bold text-red-600">.089 †</td></tr>
+    <tr class="border-b"><td class="px-2 py-0.5">Q5 推薦意願</td><td class="px-2 py-0.5 text-center">4.06</td><td class="px-2 py-0.5 text-center">4.36</td><td class="px-2 py-0.5 text-center">n.s.</td></tr>
   </tbody>
 </table>
+</div>
 
-<div class="mt-3 text-center text-red-600 font-bold">
+<div class="mt-1 text-center text-[10px] text-red-600 font-bold">
   Q4 課後學習動機 p = .089 為趨近顯著 ★
 </div>
 
@@ -653,7 +657,7 @@ Q4 課後學習動機 p=.089 趨近顯著，這是 RR 在動機上的勝出證�
       <div class="text-base">
         「努力」分項<br>
         <span class="font-bold text-red-500">RR 顯著低於 Colab（p = .044）</span><br><br>
-        ⇒ RR 學生主觀上感受到「**輕鬆**」<br>
+        ⇒ RR 學生主觀上感受到「<b>輕鬆</b>」<br>
         <span class="text-sm opacity-70">呼應開放題參數調整困難比例</span>
       </div>
     </div>
@@ -919,7 +923,7 @@ class: text-center
 <div class="space-y-3 mt-8 text-lg">
   <div>感謝 <span class="font-bold">黃怡錚老師</span> 指導</div>
   <div>感謝 <span class="font-bold">張鈞博助教</span> 協助</div>
-  <div>感謝 <span class="font-bold">兩位授課教師</span> 與 <span class="font-bold">兩班受試學生</span></div>
+  <div>感謝 <span class="font-bold">兩班受試學生</span> 配合</div>
   <div>感謝 <span class="font-bold">口試委員</span> 蒞臨指教</div>
 </div>
 

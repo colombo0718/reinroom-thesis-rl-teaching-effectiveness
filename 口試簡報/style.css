@@ -5,3 +5,10 @@
 
 /* 頁碼改用 global-bottom.vue 顯示（Slidev PDF 把每頁當獨立印刷頁，CSS counter 會被重置） */
 
+/* 緊湊表格 — S22 / S23 等資料密集頁用 .compact-table 強制小字體 */
+.compact-table table, .compact-table table th, .compact-table table td {
+  font-size: 11px !important;
+  line-height: 1.25 !important;
+  padding: 2px 8px !important;
+}
+
