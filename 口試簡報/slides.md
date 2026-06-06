@@ -280,7 +280,7 @@ layout: section
       <li>🎮 五個遊戲環境（1D → Fighter）</li>
     </ul>
     <div class="mt-6 text-sm opacity-60">
-      https://reinroom.leaflune.org/
+      https://reinroom.leaflune.org/en/
     </div>
   </div>
 </div>
