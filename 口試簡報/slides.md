@@ -293,28 +293,26 @@ RR 是我自行開發的純前端 RL 教學平台，網址打開就能用。
 
 # 核心特色 1：滑桿即時調參
 
-<div class="grid grid-cols-2 gap-8">
-  <div>
-    <img src="/images/fig3-1a.png" class="rounded shadow-lg" />
-    <div class="text-center text-sm mt-2 opacity-60">超參數滑桿</div>
+<div class="text-center">
+  <img src="/images/fig3-1a.png" class="max-h-72 mx-auto rounded shadow-lg" />
+  <div class="text-sm mt-2 opacity-60">超參數滑桿</div>
+</div>
+
+<h3 class="text-xl font-bold mt-4 mb-3 text-red-500 text-center">操作回饋週期：從 30 秒 → 1 秒</h3>
+
+<div class="grid grid-cols-2 gap-6 text-base">
+  <div class="text-center">
+    <span class="font-bold">傳統程式碼導向</span><br>
+    <span class="opacity-70">改程式 → 重跑 → 看結果（~30 秒循環）</span>
   </div>
-  <div class="flex flex-col justify-center">
-    <h3 class="text-xl font-bold mb-3 text-red-500">操作回饋週期：從 30 秒 → 1 秒</h3>
-    <div class="space-y-3 text-base">
-      <div>
-        <span class="font-bold">傳統程式碼導向：</span><br>
-        <span class="opacity-70">改程式 → 重跑 → 看結果（~30 秒循環）</span>
-      </div>
-      <div class="text-red-500">
-        <span class="font-bold">RR 滑桿介面：</span><br>
-        拖一下 → 看一下（~1 秒循環）
-      </div>
-    </div>
-    <div class="mt-6 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm">
-      💡 學生在拖曳過程中即可建立<br>
-      「過大 → 行為 X、過小 → 行為 Y」的直觀感受
-    </div>
+  <div class="text-red-500 text-center">
+    <span class="font-bold">RR 滑桿介面</span><br>
+    拖一下 → 看一下（~1 秒循環）
   </div>
+</div>
+
+<div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-center">
+  💡 學生在拖曳過程中即可建立「過大 → 行為 X、過小 → 行為 Y」的直觀感受
 </div>
 
 <!--
