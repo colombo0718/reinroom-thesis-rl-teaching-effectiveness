@@ -322,44 +322,57 @@ RR 是我自行開發的純前端 RL 教學平台，網址打開就能用。
 
 ---
 
-# 核心特色 2：訓練曲線即時刷新
+# 核心特色 2：儀表 Tab — 看見訓練成效
 
-<div class="grid grid-cols-2 gap-6">
-  <div>
-    <img src="/images/fig3-7.png" class="rounded shadow-lg" />
-    <div class="text-center text-sm mt-2 opacity-60">訓練曲線 — 即時更新</div>
+<div class="text-center">
+  <img src="/images/fig3-7.png" class="max-h-72 mx-auto rounded shadow-lg" />
+  <div class="text-sm mt-2 opacity-60">即時訓練圖表（每秒更新）</div>
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-sm">
+  <div class="border-l-4 border-blue-400 pl-3">
+    <span class="font-bold">上排（每秒粒度）</span><br>
+    Reward 面積折線 + Steps 面積折線
   </div>
-  <div>
-    <img src="/images/fig3-8.png" class="rounded shadow-lg" />
-    <div class="text-center text-sm mt-2 opacity-60">動作選擇熱力圖</div>
+  <div class="border-l-4 border-blue-400 pl-3">
+    <span class="font-bold">下排（每回合粒度）</span><br>
+    Reward 柱狀 + Steps 柱狀
   </div>
 </div>
 
-<div class="text-center text-lg mt-6 text-blue-600">
-  讓學生看見智能體當下的策略地圖
+<div class="text-center text-lg mt-4 text-blue-600">
+  四張圖互補 ⇒ 學生即時看出 agent 訓練成效
 </div>
 
 <!--
-即時更新的訓練曲線與動作選擇熱力圖，讓學生看見學習過程。
+儀表 Tab 四張圖，分兩種時間粒度：每秒看當下訓練動態、每回合看整體收斂趨勢。
+學生不需理解演算法細節，從曲線走勢就能判斷訓練方向對不對。
 -->
 
 ---
 
-# 核心特色 3：Q 值與動作機率視覺化
+# 核心特色 3：分析 Tab — 看見行為成因
 
-<div class="text-center">
-  <img src="/images/fig3-9.png" class="max-h-80 mx-auto rounded shadow-lg" />
+<div class="grid grid-cols-2 gap-4">
+  <div>
+    <img src="/images/fig3-8.png" class="rounded shadow" />
+    <div class="text-center text-xs mt-1 opacity-60">上排：動作色環 + 三柱圖（Q 值/ε-greedy/Softmax）</div>
+  </div>
+  <div>
+    <img src="/images/fig3-9.png" class="rounded shadow" />
+    <div class="text-center text-xs mt-1 opacity-60">中排：狀態價值折線 + 動作選擇熱力圖</div>
+  </div>
 </div>
 
-<div class="grid grid-cols-3 gap-4 mt-4 text-sm">
-  <div class="text-center"><span class="font-bold text-blue-500">原色：</span>原始 Q 值</div>
-  <div class="text-center"><span class="font-bold text-green-500">深色：</span>ε-greedy 機率</div>
-  <div class="text-center"><span class="font-bold text-orange-500">紋理：</span>Softmax 機率</div>
+<div class="text-center text-lg mt-4 text-blue-600">
+  四張圖互補 ⇒ 學生即時觀察 agent 行為成因
 </div>
 
 <!--
-分析頁三柱圖把「策略 Q 值」和「動作選擇」的關係並列。
+分析 Tab 四張圖，把「為什麼 agent 這樣選」拆給學生看：
+三柱圖讓 Q 值與選擇機率並列；熱力圖呈現全局策略地圖。
 -->
+
 
 ---
 
