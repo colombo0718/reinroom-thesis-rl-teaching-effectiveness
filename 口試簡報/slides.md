@@ -120,51 +120,29 @@ RL 已是 AI 三大核心技術之一，但抽象性與程式門檻使其難以�
 
 ---
 
-# 研究問題與答案概覽
+# 兩種教學介面的對照
 
-<div class="grid grid-cols-3 gap-4 pt-6">
-  <div class="border-2 border-blue-300 rounded-lg p-4">
-    <div class="text-blue-600 text-2xl font-bold mb-2">RQ 1</div>
-    <div class="font-bold mb-1 text-sm">理論知識傳遞</div>
-    <div class="text-xs opacity-80 mb-3">
-      視覺化平台能否傳遞 RL 核心概念？
-    </div>
-    <div class="border-t pt-2 text-xs">
-      <span class="font-bold text-gray-600">答：</span>
-      兩組前後測表現接近
-    </div>
+<div class="grid grid-cols-2 gap-4 pt-2">
+  <div class="text-center">
+    <div class="text-blue-600 font-bold mb-1">A 組 — RR（視覺化互動）</div>
+    <img src="/images/fig-ab-rr.png" class="w-full rounded shadow border-2 border-blue-300" />
+    <div class="text-xs mt-1 opacity-70">滑桿即時調參、訓練曲線即時刷新</div>
   </div>
-  <div class="border-2 border-blue-300 rounded-lg p-4">
-    <div class="text-blue-600 text-2xl font-bold mb-2">RQ 2</div>
-    <div class="font-bold mb-1 text-sm">圖表判讀</div>
-    <div class="text-xs opacity-80 mb-3">
-      學習者能否建立訓練曲線與 Q-table 判讀能力？
-    </div>
-    <div class="border-t pt-2 text-xs">
-      <span class="font-bold text-gray-600">答：</span>
-      兩組能力相近（T1–T4）
-    </div>
-  </div>
-  <div class="border-2 border-red-400 rounded-lg p-4 bg-red-50">
-    <div class="text-red-600 text-2xl font-bold mb-2">RQ 3</div>
-    <div class="font-bold mb-1 text-sm">學習動機 + 操作意願</div>
-    <div class="text-xs opacity-80 mb-3">
-      平台能否提升學習動機與自主操作意願？
-    </div>
-    <div class="border-t pt-2 text-xs">
-      <span class="font-bold text-red-600">答：</span>
-      <span class="font-bold">RR 勝出（本研究主軸）</span>
-    </div>
+  <div class="text-center">
+    <div class="text-gray-700 font-bold mb-1">B 組 — Colab（程式碼導向）</div>
+    <img src="/images/fig-ab-colab.png" class="w-full rounded shadow border-2 border-gray-400" />
+    <div class="text-xs mt-1 opacity-70">同樣的 RL 演算法，介面為 Jupyter Notebook</div>
   </div>
 </div>
 
-<div class="mt-6 text-center text-sm opacity-70">
-  RQ1、RQ2 之答案於主要發現中以數據呈現；RQ3 為本研究核心價值所在
+<div class="mt-3 text-center text-blue-600">
+  兩組執行相同的 RL 任務、相同的演算法 ⇒ <span class="font-bold">唯一差別：介面</span>
 </div>
 
 <!--
-本研究三個 RQ，後面主要發現會分別對應到答案。
-RQ1 RQ2 兩組差不多；RQ3 RR 勝出，這是本研究價值所在。
+這頁讓老師「視覺上」看到兩組到底差在哪：
+A 組用 RR 滑桿介面、B 組用 Colab notebook 寫程式，
+但任務（如 Maze1D / MAB）跟演算法完全一致。
 -->
 
 ---
@@ -197,6 +175,55 @@ RQ1 RQ2 兩組差不多；RQ3 RR 勝出，這是本研究價值所在。
 
 <!--
 研究對象為元智資工系兩班，分屬不同班級避免污染。
+-->
+
+---
+
+# 研究問題與答案概覽
+
+<div class="grid grid-cols-3 gap-4 pt-6">
+  <div class="border-2 border-blue-300 rounded-lg p-4">
+    <div class="text-blue-600 text-2xl font-bold mb-2">RQ 1</div>
+    <div class="font-bold mb-1 text-sm">理論知識傳遞</div>
+    <div class="text-xs opacity-80 mb-3">
+      視覺化平台能否傳遞 RL 核心概念？
+    </div>
+    <div class="border-t pt-2 text-xs">
+      <span class="font-bold text-gray-600">答：</span>
+      兩組前後測表現接近
+    </div>
+  </div>
+  <div class="border-2 border-blue-300 rounded-lg p-4">
+    <div class="text-blue-600 text-2xl font-bold mb-2">RQ 2</div>
+    <div class="font-bold mb-1 text-sm">圖表判讀</div>
+    <div class="text-xs opacity-80 mb-3">
+      學習者能否建立訓練曲線與 Q-table 判讀能力？
+    </div>
+    <div class="border-t pt-2 text-xs">
+      <span class="font-bold text-gray-600">答：</span>
+      兩組能力相近(T1–T4)
+    </div>
+  </div>
+  <div class="border-2 border-red-400 rounded-lg p-4 bg-red-50">
+    <div class="text-red-600 text-2xl font-bold mb-2">RQ 3</div>
+    <div class="font-bold mb-1 text-sm">學習動機 + 操作意願</div>
+    <div class="text-xs opacity-80 mb-3">
+      平台能否提升學習動機與自主操作意願？
+    </div>
+    <div class="border-t pt-2 text-xs">
+      <span class="font-bold text-red-600">答：</span>
+      <span class="font-bold">RR 勝出(本研究主軸)</span>
+    </div>
+  </div>
+</div>
+
+<div class="mt-6 text-center text-sm opacity-70">
+  RQ1、RQ2 之答案於主要發現中以數據呈現；RQ3 為本研究核心價值所在
+</div>
+
+<!--
+本研究三個 RQ，後面主要發現會分別對應到答案。
+RQ1 RQ2 兩組差不多；RQ3 RR 勝出，這是本研究價值所在。
 -->
 
 ---
