@@ -112,15 +112,24 @@ new Chart(document.getElementById('chart'), {
         meta.data.forEach((bar, bi) => {
           const v = ds.data[bi];
           ctx.fillStyle = di === 0 ? '#1a5f9e' : '#c97800';
-          // 在 T5 (idx=4) 強調顯示
-          if (bi === 4) {
-            ctx.font = 'bold 18px sans-serif';
-            ctx.fillStyle = di === 0 ? '#c00' : '#666';
-          } else {
-            ctx.font = 'bold 14px sans-serif';
-          }
+          ctx.font = 'bold 14px sans-serif';
           ctx.fillText(v + '%', bar.x, bar.y - 8);
         });
+      });
+
+      // 於每個任務上方標示卡方檢定 p 值與 Cramer's V
+      const chi2 = window.DATA.stats.completion_chi2;
+      const keys = ['T1', 'T2', 'T3', 'T4', 'T5'];
+      const meta0 = chart.getDatasetMeta(0);
+      const meta1 = chart.getDatasetMeta(1);
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#444';
+      ctx.textAlign = 'center';
+      keys.forEach((k, idx) => {
+        const stat = chi2[k];
+        const x = (meta0.data[idx].x + meta1.data[idx].x) / 2;
+        const y = Math.min(meta0.data[idx].y, meta1.data[idx].y) - 30;
+        ctx.fillText(`p=${stat.p.toFixed(3)} ${stat.sig}, V=${stat.V.toFixed(3)}`, x, y);
       });
       ctx.restore();
     },

@@ -47,7 +47,7 @@ new Chart(document.getElementById('chart'), {
     datasets: [
       {
         label: '前測',
-        data: [ds.concept_paired_A.pre_M, ds.concept_paired_B.pre_M],
+        data: [ds.concept_wilcoxon_A.pre_M, ds.concept_wilcoxon_B.pre_M],
         backgroundColor: [colors.A_pre, colors.B_pre],
         borderColor: [colors.A_border, colors.B_border],
         borderWidth: 2,
@@ -55,7 +55,7 @@ new Chart(document.getElementById('chart'), {
       },
       {
         label: '後測',
-        data: [ds.concept_paired_A.post_M, ds.concept_paired_B.post_M],
+        data: [ds.concept_wilcoxon_A.post_M, ds.concept_wilcoxon_B.post_M],
         backgroundColor: [colors.A_post, colors.B_post],
         borderColor: [colors.A_border, colors.B_border],
         borderWidth: 2,
@@ -86,7 +86,7 @@ new Chart(document.getElementById('chart'), {
       const { ctx } = chart;
       const meta0 = chart.getDatasetMeta(0); // 前測
       const meta1 = chart.getDatasetMeta(1); // 後測
-      const sigs = ['n.s.', 'p=.01*'];
+      const sigs = ['p=.113 n.s. (r=.65)', 'p=.012*  (r=.76)'];
       ctx.save();
       for (let i = 0; i < 2; i++) {
         const postBar = meta1.data[i];

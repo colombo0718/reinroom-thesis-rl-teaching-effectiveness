@@ -48,16 +48,18 @@
 const sus = window.DATA.sus;
 
 const chartData = {
-  labels: ['RR 組（全部 n=18）', 'RR 組（排除直線式 n=16）', 'Colab 組（n=12）'],
+  labels: ['RR 組（配對 n=10）', 'RR 組（全部 n=18）', 'RR 組（排除直線 n=16）', 'Colab 組（n=12）'],
   datasets: [{
     label: 'SUS 分數',
-    data: [sus.A_all, sus.A_clean, sus.B],
+    data: [sus.A_paired, sus.A_all, sus.A_clean, sus.B_all],
     backgroundColor: [
+      'rgba(46, 134, 222, 0.85)',
       'rgba(46, 134, 222, 0.4)',
-      'rgba(46, 134, 222, 0.7)',
+      'rgba(46, 134, 222, 0.6)',
       'rgba(255, 159, 67, 0.7)',
     ],
     borderColor: [
+      'rgba(46, 134, 222, 1)',
       'rgba(46, 134, 222, 1)',
       'rgba(46, 134, 222, 1)',
       'rgba(255, 159, 67, 1)',
@@ -136,12 +138,13 @@ new Chart(document.getElementById('chart'), {
     afterDatasetsDraw(chart) {
       const { ctx } = chart;
       const means = [
+        sus.A_paired.reduce((a,b)=>a+b,0) / sus.A_paired.length,
         sus.A_all.reduce((a,b)=>a+b,0) / sus.A_all.length,
         sus.A_clean.reduce((a,b)=>a+b,0) / sus.A_clean.length,
-        sus.B.reduce((a,b)=>a+b,0) / sus.B.length,
+        sus.B_all.reduce((a,b)=>a+b,0) / sus.B_all.length,
       ];
       ctx.save();
-      ctx.font = 'bold 18px sans-serif';
+      ctx.font = 'bold 16px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = '#000';
       const meta = chart.getDatasetMeta(0);
@@ -149,6 +152,18 @@ new Chart(document.getElementById('chart'), {
         const yp = chart.scales.y.getPixelForValue(means[i]);
         ctx.fillText(`M=${means[i].toFixed(1)}`, box.x, yp - 10);
       });
+
+      // 配對樣本下 Mann-Whitney U 結果（標於圖上方）
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillStyle = '#444';
+      const mw = window.DATA.stats.sus_MW_AvsB;
+      const pairedBox = meta.data[0];
+      const colabBox = meta.data[3];
+      const midX = (pairedBox.x + colabBox.x) / 2;
+      ctx.fillText(
+        `配對樣本 Mann-Whitney U=${mw.U}, p=${mw.p.toFixed(3)} ${mw.sig}, r=${mw.r.toFixed(2)}（中等效果量）`,
+        midX, 30
+      );
       ctx.restore();
     },
   }],

@@ -36,16 +36,16 @@ new Chart(document.getElementById('chart'), {
     labels: s.items,
     datasets: [
       {
-        label: 'RR 組（A）',
-        data: s.A.map(v => +v.toFixed(2)),
+        label: 'RR 組（A，n=10）',
+        data: s.A_paired.map(v => +v.toFixed(2)),
         backgroundColor: 'rgba(46, 134, 222, 0.85)',
         borderColor: 'rgba(46, 134, 222, 1)',
         borderWidth: 2,
         borderRadius: 4,
       },
       {
-        label: 'Colab 組（B）',
-        data: s.B.map(v => +v.toFixed(2)),
+        label: 'Colab 組（B，n=12）',
+        data: s.B_paired.map(v => +v.toFixed(2)),
         backgroundColor: 'rgba(255, 159, 67, 0.85)',
         borderColor: 'rgba(255, 159, 67, 1)',
         borderWidth: 2,
@@ -89,16 +89,23 @@ new Chart(document.getElementById('chart'), {
         const meta = chart.getDatasetMeta(di);
         meta.data.forEach((bar, bi) => {
           const v = ds.data[bi];
-          // 3-4 動機（idx=3）紅色突顯
-          if (bi === 3) {
-            ctx.font = 'bold 16px sans-serif';
-            ctx.fillStyle = di === 0 ? '#c00' : '#666';
-          } else {
-            ctx.font = 'bold 13px sans-serif';
-            ctx.fillStyle = di === 0 ? '#1a5f9e' : '#c97800';
-          }
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillStyle = di === 0 ? '#1a5f9e' : '#c97800';
           ctx.fillText(v.toFixed(2), bar.x, bar.y - 8);
         });
+      });
+
+      // 於每題上方標示 Mann-Whitney U 的 p 值與效果量 r
+      const mw = window.DATA.stats.sec3_MW;
+      const meta0 = chart.getDatasetMeta(0);
+      const meta1 = chart.getDatasetMeta(1);
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#444';
+      ctx.textAlign = 'center';
+      mw.forEach((stat, idx) => {
+        const x = (meta0.data[idx].x + meta1.data[idx].x) / 2;
+        const y = Math.min(meta0.data[idx].y, meta1.data[idx].y) - 30;
+        ctx.fillText(`p=${stat.p.toFixed(3)} ${stat.sig}, r=${stat.r.toFixed(2)}`, x, y);
       });
       ctx.restore();
     },

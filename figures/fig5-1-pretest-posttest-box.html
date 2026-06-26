@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>圖 5-1 兩組前後測分數箱型圖</title>
+<title>圖 5-1 配對樣本前後測分數箱型圖</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.1/build/index.umd.min.js"></script>
 <script src="data.js"></script>
@@ -40,14 +40,14 @@
 const c = window.DATA.concept_test;
 
 const chartData = {
-  labels: ['RR 組前測', 'RR 組後測', 'Colab 組前測', 'Colab 組後測'],
+  labels: ['RR 組前測 (n=10)', 'RR 組後測 (n=10)', 'Colab 組前測 (n=12)', 'Colab 組後測 (n=12)'],
   datasets: [{
     label: '分數分佈',
     data: [
-      c.A_pre_all,
-      c.A_post_all,
-      c.B_pre_all,
-      c.B_post_all,
+      c.A_pre_paired,
+      c.A_post_paired,
+      c.B_pre_paired,
+      c.B_post_paired,
     ],
     backgroundColor: [
       'rgba(46, 134, 222, 0.4)',
@@ -119,10 +119,10 @@ new Chart(document.getElementById('chart'), {
       const { ctx } = chart;
       ctx.save();
       const means = [
-        c.A_pre_all.reduce((a,b)=>a+b,0) / c.A_pre_all.length,
-        c.A_post_all.reduce((a,b)=>a+b,0) / c.A_post_all.length,
-        c.B_pre_all.reduce((a,b)=>a+b,0) / c.B_pre_all.length,
-        c.B_post_all.reduce((a,b)=>a+b,0) / c.B_post_all.length,
+        c.A_pre_paired.reduce((a,b)=>a+b,0) / c.A_pre_paired.length,
+        c.A_post_paired.reduce((a,b)=>a+b,0) / c.A_post_paired.length,
+        c.B_pre_paired.reduce((a,b)=>a+b,0) / c.B_pre_paired.length,
+        c.B_post_paired.reduce((a,b)=>a+b,0) / c.B_post_paired.length,
       ];
       ctx.font = 'bold 13px sans-serif';
       ctx.textAlign = 'center';
