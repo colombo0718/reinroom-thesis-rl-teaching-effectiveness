@@ -997,12 +997,22 @@ def add_front_matter(doc, events=None, fig_registry=None, table_registry=None):
     add_title_page(doc)
     add_verification_page(doc)
 
-    # 中文摘要
+    # 中文摘要 + 英文 Abstract（兩個 ## section，第二個前加換頁）
     md_path = MD_DIR / '摘要.md'
     if md_path.exists():
-        for kind, content in parse_md(md_path, '中文摘要'):
+        section_count = 0
+        # 傳空字串作為 chapter_title，使 ## 中文摘要 / ## Abstract 兩個 heading 都被 yield
+        for kind, content in parse_md(md_path, ''):
             if kind == 'section':
-                add_section(doc, content)
+                section_count += 1
+                if section_count > 1:
+                    add_page_break(doc)
+                # 摘要標題置中、字級略大、上下留白
+                p = doc.add_paragraph()
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                set_spacing(p, 1.5, before_pt=0, after_pt=18)
+                run = p.add_run(content)
+                set_font(run, 18, bold=True)
             elif kind == 'body':
                 add_body_15x(doc, content)
     add_page_break(doc)
