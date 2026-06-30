@@ -570,15 +570,32 @@ def add_page_break(doc):
     run.add_break(WD_BREAK.PAGE)
 
 def add_table(doc, raw_rows, fig_registry=None, table_registry=None):
-    """從 md 表格列插入 Word 表格；registry 提供時，cell 內圖/表參照會轉成新編號。"""
+    """從 md 表格列插入 Word 表格；registry 提供時，cell 內圖/表參照會轉成新編號。
+
+    欄數越多，字級越小，避免在 A4 寬度下單欄被擠到字斷行：
+      ≤ 6 欄 → 12pt（標準正文字級）
+      7 欄   → 11pt
+      8 欄   → 10pt
+      ≥ 9 欄 → 9pt
+    """
     rows = [r for r in raw_rows if not RE_TABLE_SEP.match(r.strip())]
     if not rows:
         return
     cols = max(len(r.strip('|').split('|')) for r in rows)
     if cols <= 0:
         return
+    # 依欄數決定字級
+    if cols <= 6:
+        font_size = 12
+    elif cols == 7:
+        font_size = 11
+    elif cols == 8:
+        font_size = 10
+    else:
+        font_size = 9
     tbl = doc.add_table(rows=len(rows), cols=cols)
     tbl.style = 'Table Grid'
+    tbl.autofit = True
     for ri, row_line in enumerate(rows):
         cells = [c.strip() for c in row_line.strip('|').split('|')]
         for ci in range(cols):
@@ -592,7 +609,7 @@ def add_table(doc, raw_rows, fig_registry=None, table_registry=None):
             p = cell.paragraphs[0]
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
             set_spacing(p, 1.2)
-            add_runs(p, cell_text, 12)
+            add_runs(p, cell_text, font_size)
 
 # ── 圖片查找 ─────────────────────────────────────────────────────────────
 
