@@ -43,7 +43,7 @@ THESIS_META = {
     'degree_zh': '碩士',
     'degree_en': 'Master of Science',
     'year_roc': '一一五',                                # 民國年
-    'month_zh': '六',
+    'month_zh': '七',
     'year_ad': '2026',
     'month_en': 'June',
     'location_en': 'Chungli, Taiwan, Republic of China',
@@ -277,8 +277,9 @@ def normalize_caption_punct(text):
 
 # ── 字型 / 段落格式函數 ──────────────────────────────────────────────────
 
-def set_font(run, size_pt, bold=False):
+def set_font(run, size_pt, bold=False, italic=False):
     run.bold = bold
+    run.italic = italic
     run.font.size = Pt(size_pt)
     run.font.name = FONT_EN
     rPr = run._r.get_or_add_rPr()
@@ -378,13 +379,27 @@ def _restore_md_escapes(s):
     """把 add_runs 開頭塞進去的 token 還原成字面 *。"""
     return s.replace(_STAR_TOKEN, '*')
 
+def _add_italic_aware(para, text, size_pt, bold=False):
+    """於非 bold 段內再切 *italic* 並 emit runs（已處理過 \\* escape）。"""
+    last = 0
+    for m in re.finditer(r'\*([^*\n]+?)\*', text):
+        if m.start() > last:
+            run = para.add_run(_restore_md_escapes(text[last:m.start()]))
+            set_font(run, size_pt, bold=bold)
+        run = para.add_run(_restore_md_escapes(m.group(1)))
+        set_font(run, size_pt, bold=bold, italic=True)
+        last = m.end()
+    if last < len(text):
+        run = para.add_run(_restore_md_escapes(text[last:]))
+        set_font(run, size_pt, bold=bold)
+
 def add_runs(para, text, size_pt, default_bold=False):
-    """拆解 **bold** 與 $inline_math$ 標記，加入 runs / OMML。
+    """拆解 **bold** / *italic* / $inline_math$ 標記，加入 runs / OMML。
     處理 markdown escape：`\\*` 表示字面 *，需先以 token 暫代避免被 ** bold 邏輯誤切。
     """
     # 預處理：md escape `\*` → token，等切完 bold/math 後再還原成 *
     text = text.replace(r'\*', _STAR_TOKEN)
-    # 先按 bold 切，再對每個非 bold 段切 inline math
+    # 先按 bold 切，再對每個非 bold 段切 inline math / italic
     parts = re.split(r'\*\*(.+?)\*\*', text)
     for i, part in enumerate(parts):
         if not part:
@@ -392,15 +407,13 @@ def add_runs(para, text, size_pt, default_bold=False):
         is_bold = default_bold or (i % 2 == 1)
         if is_bold:
             # bold 段內也可能有 math，但暫不處理（罕見）
-            run = para.add_run(_restore_md_escapes(part))
-            set_font(run, size_pt, bold=True)
+            _add_italic_aware(para, part, size_pt, bold=True)
             continue
         # 切 inline math
         last_end = 0
         for m in RE_INLINE_MATH.finditer(part):
             if m.start() > last_end:
-                run = para.add_run(_restore_md_escapes(part[last_end:m.start()]))
-                set_font(run, size_pt, bold=False)
+                _add_italic_aware(para, part[last_end:m.start()], size_pt, bold=False)
             omml = latex_to_omml(m.group(1), display=False)
             if omml is not None:
                 para._p.append(omml)
@@ -409,8 +422,7 @@ def add_runs(para, text, size_pt, default_bold=False):
                 set_font(run, size_pt, bold=False)
             last_end = m.end()
         if last_end < len(part):
-            run = para.add_run(_restore_md_escapes(part[last_end:]))
-            set_font(run, size_pt, bold=False)
+            _add_italic_aware(para, part[last_end:], size_pt, bold=False)
 
 # ── 段落類型函數 ─────────────────────────────────────────────────────────
 
@@ -465,11 +477,19 @@ def add_body(doc, text):
     add_runs(p, text, 14)
 
 def add_body_15x(doc, text):
-    """1.5 倍行距正文（摘要 / 誌謝 / 參考文獻使用）。"""
+    """1.5 倍行距正文（摘要 / 誌謝 / 參考文獻使用）。
+    若段落以 [N] 開頭 → 視為參考文獻條目, 套用懸掛縮排 (hanging indent),
+    使 [N] 掛在最左, 文字統一自 hanging 邊界起始, 換行對齊。
+    """
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     set_spacing(p, 1.5)
-    set_first_line_indent_chars(p, BODY_FIRST_LINE_INDENT_CHARS)
+    if re.match(r'^\[\d+\]\s', text):
+        # 參考文獻條目: 懸掛縮排
+        p.paragraph_format.left_indent = Pt(30)
+        p.paragraph_format.first_line_indent = Pt(-30)
+    else:
+        set_first_line_indent_chars(p, BODY_FIRST_LINE_INDENT_CHARS)
     add_runs(p, text, 14)
 
 def add_toc_field(doc, title, switches):
@@ -599,7 +619,7 @@ def add_table(doc, raw_rows, fig_registry=None, table_registry=None):
     for ri, row_line in enumerate(rows):
         cells = [c.strip() for c in row_line.strip('|').split('|')]
         for ci in range(cols):
-            cell_text = cells[ci].strip('*').strip() if ci < len(cells) else ''
+            cell_text = cells[ci].strip() if ci < len(cells) else ''
             if fig_registry is not None:
                 cell_text = fig_registry.convert(cell_text)
             if table_registry is not None:
@@ -1020,9 +1040,14 @@ def add_front_matter(doc, events=None, fig_registry=None, table_registry=None):
     # 誌謝
     md_path = MD_DIR / '誌謝.md'
     if md_path.exists():
-        for kind, content in parse_md(md_path, '誌謝'):
+        # 傳空字串作為 chapter_title，使 ## 誌謝 heading 被 yield 而能加置中大標題
+        for kind, content in parse_md(md_path, ''):
             if kind == 'section':
-                add_section(doc, content)
+                p = doc.add_paragraph()
+                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                set_spacing(p, 1.5, before_pt=0, after_pt=18)
+                run = p.add_run(content)
+                set_font(run, 18, bold=True)
             elif kind == 'body':
                 add_body_15x(doc, content)
     add_page_break(doc)

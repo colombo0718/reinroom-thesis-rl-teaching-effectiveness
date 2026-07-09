@@ -1,6 +1,6 @@
 # 附錄 A　量表完整題項與信度分析
 
-本附錄補充第四章評估工具設計與第五章學習參與度分析所使用之三份量表之完整題項、計分方式、原始量表之文獻信度（Cronbach's α），以及本研究實測之信度資料。依吳穎沺老師（中央大學）口試意見補充，使讀者可完整檢視量表內容與心理計量品質。
+本附錄補充第四章評估工具設計與第五章學習參與度分析所使用之三份量表之完整題項、計分方式、原始量表之文獻信度（Cronbach's α），以及本研究實測之信度資料，俾使讀者可完整檢視量表內容與心理計量品質。
 
 ---
 
@@ -159,19 +159,3 @@ Bangor、Kortum 與 Miller（2008）整理 2,324 份問卷之大樣本研究，�
 - **平台回饋量表**：本研究自行設計，全部後測樣本下 α = .848，內部一致性良好。
 - **SUS**：實測值與文獻報告值接近，內部一致性良好。
 - **NASA-TLX**：實測值低於文獻典型區間。如 A.2.4 所述，此一現象與 NASA-TLX 設計為多向度量表、配對樣本規模較小等因素相關。整體分數之解讀於本研究中採描述用途，分項分數則分別進行推論統計檢定（5.3.5），符合 NASA-TLX 之常見分析慣例。
-
----
-
-## A.6　本附錄參考文獻
-
-本附錄所引文獻於〈參考文獻〉一節中收錄，並列出於下：
-
-- Bangor, A., Kortum, P., & Miller, J. T. (2008). An empirical evaluation of the System Usability Scale. *International Journal of Human-Computer Interaction*, 24(6), 574–594.
-- Bangor, A., Kortum, P., & Miller, J. (2009). Determining what individual SUS scores mean: Adding an adjective rating scale. *Journal of Usability Studies*, 4(3), 114–123.
-- Brooke, J. (1996). SUS: A "quick and dirty" usability scale. In P. W. Jordan, B. Thomas, B. A. Weerdmeester, & I. L. McClelland (Eds.), *Usability Evaluation in Industry* (pp. 189–194). Taylor & Francis.
-- Byers, J. C., Bittner, A. C., & Hill, S. G. (1989). Traditional and raw task load index (TLX) correlations: Are paired comparisons necessary? *Advances in Industrial Ergonomics and Safety I*, 481–485.
-- Cao, A., Chintamani, K. K., Pandya, A. K., & Ellis, R. D. (2009). NASA TLX: Software for assessing subjective mental workload. *Behavior Research Methods*, 41(1), 113–117.
-- Hart, S. G. (2006). NASA-Task Load Index (NASA-TLX); 20 years later. *Proceedings of the Human Factors and Ergonomics Society Annual Meeting*, 50(9), 904–908.
-- Hart, S. G., & Staveland, L. E. (1988). Development of NASA-TLX (Task Load Index): Results of empirical and theoretical research. In P. A. Hancock & N. Meshkati (Eds.), *Advances in Psychology* (Vol. 52, pp. 139–183). North-Holland.
-- Lewis, J. R., & Sauro, J. (2009). The factor structure of the System Usability Scale. In *Human Centered Design* (pp. 94–103). Springer.
-- Nunnally, J. C. (1978). *Psychometric Theory* (2nd ed.). McGraw-Hill.
